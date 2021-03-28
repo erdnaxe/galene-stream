@@ -31,5 +31,8 @@ shell.nix
 # Virtualenv
 venv/
 
+# NGINX logs
+access.log
+
 # Automatic versioning
 galene_rtmp/version.py

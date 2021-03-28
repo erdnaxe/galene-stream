@@ -39,11 +39,12 @@ if len(missing):
 
 log = logging.getLogger(__name__)
 
+# TODO: videosrc ! watchdog
 PIPELINE_DESC = """
 webrtcbin name=send bundle-policy=max-bundle
- videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay !
+ uridecodebin uri=rtmp://localhost:1935/live/test name=bin ! queue ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay !
  queue ! application/x-rtp,media=video,encoding-name=VP8,payload=97 ! send.
- audiotestsrc is-live=true wave=red-noise ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay !
+ bin. ! queue ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay !
  queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=96 ! send.
 """
 
