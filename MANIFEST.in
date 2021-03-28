@@ -1,0 +1,2 @@
+# Include metadata files
+include .gitlab-ci.yml CONTRIBUTING.md

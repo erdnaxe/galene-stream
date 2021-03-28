@@ -1,0 +1,38 @@
+stages:
+  - quality-assurance
+  - testing
+
+# Cache pip
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
+linters:
+  image: python:3.9
+  stage: quality-assurance
+  before_script:
+    - pip install tox
+  script:
+    - tox -e linters
+
+  # Be nice to new contributors, but please use `tox` before commit
+  allow_failure: true
+
+tests-py38:
+  image: python:3.8
+  stage: testing
+  before_script:
+    - pip install tox
+  script:
+    - tox -e tests
+
+tests-py39:
+  image: python:3.9
+  stage: testing
+  before_script:
+    - pip install tox
+  script:
+    - tox -e tests

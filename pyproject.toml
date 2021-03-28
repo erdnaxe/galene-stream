@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "galene_rtmp/version.py"
+
+[tool.interrogate]
+ignore-private = true
+fail-under = 90
+exclude = ["setup.py", "build", "galene_rtmp/version.py"]
+verbose = 2
+
+[tool.check-manifest]
+ignore = ["galene_rtmp/version.py"]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist =
+    linters
+[testenv]
+setenv =
+    PYTHONWARNINGS = all
+sitepackages = true
+[testenv:linters]
+skip_install = true
+deps =
+    black
+    isort
+    interrogate
+    check-manifest
+commands =
+    black --check --diff galene_rtmp setup.py
+    isort --check-only --diff --profile black galene_rtmp
+    interrogate
+    check-manifest
+"""
