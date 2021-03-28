@@ -1,2 +1,5 @@
+# Include documentation
+recursive-include docs *.conf
+
 # Include metadata files
 include .gitlab-ci.yml CONTRIBUTING.md
