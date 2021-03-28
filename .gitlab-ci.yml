@@ -1,6 +1,6 @@
 stages:
   - quality-assurance
-  - testing
+  - deploy
 
 # Cache pip
 variables:
@@ -21,18 +21,14 @@ linters:
   # Be nice to new contributors, but please use `tox` before commit
   allow_failure: true
 
-tests-py38:
-  image: python:3.8
-  stage: testing
-  before_script:
-    - pip install tox
-  script:
-    - tox -e tests
-
-tests-py39:
+deploy:
   image: python:3.9
-  stage: testing
+  stage: deploy
   before_script:
-    - pip install tox
+    - pip install build twine
   script:
-    - tox -e tests
+    - python -m build
+    - TWINE_PASSWORD=${PIPY_TOKEN} TWINE_USERNAME=__token__ python -m twine upload --repository pypi dist/*
+  only:
+    refs:
+      - tags
