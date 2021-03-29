@@ -155,13 +155,19 @@ class WebRTCClient:
         self.pipe.set_state(Gst.State.PLAYING)
 
         # Add TURN servers
-        for server in ice_servers:
-            username = server.get("username", "")
-            credential = server.get("credential", "")
-            for url in server.get("urls", []):
-                url = url.replace("turn:", "")  # remove prefix
-                uri = f"turn://{username}:{credential}@{url}"
-                self.webrtc.emit("add-turn-server", uri)
+        try:
+            for server in ice_servers:
+                username = server.get("username", "")
+                credential = server.get("credential", "")
+                for url in server.get("urls", []):
+                    url = url.replace("turn:", "")  # remove prefix
+                    uri = f"turn://{username}:{credential}@{url}"
+                    self.webrtc.emit("add-turn-server", uri)
+        except TypeError:
+            log.warn(
+                "add-turn-server signal is missing, maybe your gstreamer "
+                "is too old. Skipping TURN servers configuration"
+            )
 
     def close_pipeline(self):
         """Stop gstreamer pipeline."""
