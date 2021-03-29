@@ -29,8 +29,6 @@ needed = [
     "srtp",
     "rtp",
     "rtpmanager",
-    "videotestsrc",
-    "audiotestsrc",
 ]
 missing = list(filter(lambda p: Gst.Registry.get().find_plugin(p) is None, needed))
 if len(missing):
@@ -39,7 +37,6 @@ if len(missing):
 
 log = logging.getLogger(__name__)
 
-# TODO: videosrc ! watchdog
 PIPELINE_DESC = """
 webrtcbin name=send bundle-policy=max-bundle
  uridecodebin uri=rtmp://localhost:1935/live/test name=bin ! queue ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay !

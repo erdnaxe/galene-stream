@@ -1,5 +1,6 @@
 stages:
   - quality-assurance
+  - testing
   - deploy
 
 # Cache pip
@@ -20,6 +21,22 @@ linters:
 
   # Be nice to new contributors, but please use `tox` before commit
   allow_failure: true
+
+tests-debian-10:
+  image: debian:10
+  stage: testing
+  before_script:
+    - apt-get update && apt-get install -y tox python3-gi python3-gi-cairo python3-websockets gir1.2-gst-plugins-bad-1.0 gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-nice
+  script:
+    - tox -e tests
+
+tests-archlinux:
+  image: archlinux:latest
+  stage: testing
+  before_script:
+    - pacman -Sy --noconfirm python-setuptools python-tox python-websockets python-gobject gst-python gst-plugins-base gst-plugins-bad
+  script:
+    - tox -e tests
 
 deploy:
   image: python:3.9

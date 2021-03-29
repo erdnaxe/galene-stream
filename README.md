@@ -11,7 +11,21 @@ Real-time video conversion requires resources. If many users are going to use
 this gateway simultaneously, you should scale your machine resources
 accordingly.
 
-### Installation using Python Virtualenv
+### Installation on Debian/Ubuntu
+
+```bash
+sudo apt install python3-pip python3-gi python3-gi-cairo python3-websockets gir1.2-gst-plugins-bad-1.0 gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-nice
+pip3 install --user galene-rtmp
+```
+
+### Installation on ArchLinux
+
+```bash
+sudo pacman -S python-setuptools python-pip python-websockets python-gobject gst-python gst-plugins-base gst-plugins-bad
+pip install --user galene-rtmp
+```
+
+### Installation from source code using Python Virtualenv
 
 Start by cloning the source code,
 
@@ -20,13 +34,15 @@ git clone https://github.com/erdnaxe/galene-rtmp
 cd galene-rtmp
 ```
 
-Then create a Python virtualenv and install galene-rtmp inside,
+Then create a Python VirtualEnv and install galene-rtmp inside,
 
 ```bash
 python -m venv venv --system-site-packages
 source venv/bin/activate
 pip install -e .
 ```
+
+### Configuration
 
 You need a NGINX RTMP server, you may remix the provided
 [nginx.conf](./docs/nginx.conf).

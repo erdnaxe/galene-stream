@@ -19,10 +19,13 @@ legacy_tox_ini = """
 [tox]
 envlist =
     linters
+    tests
 [testenv]
-setenv =
-    PYTHONWARNINGS = all
 sitepackages = true
+[testenv:tests]
+changedir = tests
+deps = pytest
+commands = pytest --basetemp="{envtmpdir}" {posargs}
 [testenv:linters]
 skip_install = true
 deps =
@@ -31,8 +34,8 @@ deps =
     interrogate
     check-manifest
 commands =
-    black --check --diff galene_rtmp setup.py
-    isort --check-only --diff --profile black galene_rtmp
+    black --check --diff galene_rtmp tests setup.py
+    isort --check-only --diff --profile black galene_rtmp tests
     interrogate
     check-manifest
 """
