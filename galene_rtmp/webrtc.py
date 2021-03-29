@@ -29,8 +29,6 @@ needed = [
     "srtp",
     "rtp",
     "rtpmanager",
-    "videotestsrc",
-    "audiotestsrc",
 ]
 missing = list(filter(lambda p: Gst.Registry.get().find_plugin(p) is None, needed))
 if len(missing):
@@ -39,7 +37,6 @@ if len(missing):
 
 log = logging.getLogger(__name__)
 
-# TODO: videosrc ! watchdog
 PIPELINE_DESC = """
 webrtcbin name=send bundle-policy=max-bundle
  uridecodebin uri=rtmp://localhost:1935/live/test name=bin ! queue ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay !
@@ -158,13 +155,19 @@ class WebRTCClient:
         self.pipe.set_state(Gst.State.PLAYING)
 
         # Add TURN servers
-        for server in ice_servers:
-            username = server.get("username", "")
-            credential = server.get("credential", "")
-            for url in server.get("urls", []):
-                url = url.replace("turn:", "")  # remove prefix
-                uri = f"turn://{username}:{credential}@{url}"
-                self.webrtc.emit("add-turn-server", uri)
+        try:
+            for server in ice_servers:
+                username = server.get("username", "")
+                credential = server.get("credential", "")
+                for url in server.get("urls", []):
+                    url = url.replace("turn:", "")  # remove prefix
+                    uri = f"turn://{username}:{credential}@{url}"
+                    self.webrtc.emit("add-turn-server", uri)
+        except TypeError:
+            log.warn(
+                "add-turn-server signal is missing, maybe your gstreamer "
+                "is too old. Skipping TURN servers configuration"
+            )
 
     def close_pipeline(self):
         """Stop gstreamer pipeline."""
