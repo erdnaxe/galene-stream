@@ -86,7 +86,7 @@ def main():
     )
 
     try:
-        main(options)
+        start(options)
     except KeyboardInterrupt:
         sys.exit(1)
 
