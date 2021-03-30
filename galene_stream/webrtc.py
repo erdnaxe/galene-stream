@@ -68,7 +68,7 @@ class WebRTCClient:
         # Get offer from the promise calling the event
         promise.wait()
         reply = promise.get_reply()
-        offer = reply["offer"]
+        offer = reply.get_value("offer")
 
         # Set local description
         log.info("Setting local description")
