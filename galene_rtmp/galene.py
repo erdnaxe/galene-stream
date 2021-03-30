@@ -166,6 +166,12 @@ class GaleneClient(WebRTCClient):
                     raise RuntimeError(f"Server returned error: {value}")
                 else:
                     log.warn(f"Server sent: {value}")
+            elif message["type"] == "user":
+                continue  # ignore user events
+            elif message["type"] == "close":
+                continue  # ignore close events
+            elif message["chat"] == "close":
+                continue  # ignore chat events
             else:
                 # Oh no! We receive something not implemented
                 log.warn(f"Not implemented {message}")
