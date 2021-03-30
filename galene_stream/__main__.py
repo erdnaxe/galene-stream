@@ -13,7 +13,7 @@ import sys
 from galene_stream.galene import GaleneClient
 
 
-def main(opt: argparse.Namespace):
+def start(opt: argparse.Namespace):
     """Init Galène client and start gateway
 
     :param opt: program options
@@ -27,7 +27,8 @@ def main(opt: argparse.Namespace):
     event_loop.run_until_complete(client.loop(event_loop, opt.input))
 
 
-if __name__ == "__main__":
+def main():
+    """Entrypoint."""
     # Arguments parser
     parser = argparse.ArgumentParser(
         prog="galene-stream",
@@ -88,3 +89,7 @@ if __name__ == "__main__":
         main(options)
     except KeyboardInterrupt:
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
