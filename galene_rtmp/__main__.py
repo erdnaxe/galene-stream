@@ -19,14 +19,12 @@ def main(opt: argparse.Namespace):
     :param opt: program options
     :type opt: argparse.Namespace
     """
-    client = GaleneClient(
-        options.group, options.server, options.username, options.password
-    )
+    client = GaleneClient(opt.group, opt.output, opt.username, opt.password)
 
     # Connect and run main even loop
     event_loop = asyncio.get_event_loop()
     event_loop.run_until_complete(client.connect())
-    event_loop.run_until_complete(client.loop(event_loop))
+    event_loop.run_until_complete(client.loop(event_loop, opt.input))
 
 
 if __name__ == "__main__":
@@ -42,21 +40,31 @@ if __name__ == "__main__":
         help="debug mode: show debug messages",
     )
     parser.add_argument(
-        "--server",
-        required=True,
-        help='Server to connect to, e.g. "wss://galene.example.com/ws"',
+        "-i",
+        "--input",
+        default="rtmp://localhost:1935/live/test",
+        help='URI to use as GStreamer "uridecodebin" module input',
     )
     parser.add_argument(
+        "-o",
+        "--output",
+        required=True,
+        help='Galène server to connect to, e.g. "wss://galene.example.com/ws"',
+    )
+    parser.add_argument(
+        "-g",
         "--group",
         required=True,
         help="Join this group",
     )
     parser.add_argument(
+        "-u",
         "--username",
         required=True,
         help="Group username",
     )
     parser.add_argument(
+        "-p",
         "--password",
         help="Group password",
     )

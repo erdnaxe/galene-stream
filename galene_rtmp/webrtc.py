@@ -39,7 +39,7 @@ log = logging.getLogger(__name__)
 
 PIPELINE_DESC = """
 webrtcbin name=send bundle-policy=max-bundle
- uridecodebin uri=rtmp://localhost:1935/live/test name=bin ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay !
+ uridecodebin uri={input_uri} name=bin ! videoconvert ! queue ! vp8enc deadline=10 ! rtpvp8pay !
  queue ! application/x-rtp,media=video,encoding-name=VP8,payload=97 ! send.
  bin. ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay !
  queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=96 ! send.
@@ -57,6 +57,7 @@ class WebRTCClient:
         self.event_loop = None
         self.pipe = None
         self.webrtc = None
+        self.input_uri = ""
 
     def on_offer_created(self, promise, _, __):
         """``on-offer-created`` event handler.
@@ -138,17 +139,20 @@ class WebRTCClient:
         """
         self.webrtc.emit("add-ice-candidate", mline_index, candidate)
 
-    def start_pipeline(self, event_loop, ice_servers):
+    def start_pipeline(self, event_loop, ice_servers, input_uri):
         """Start gstreamer pipeline and connect WebRTC events.
 
         :param event_loop: asyncio event loop
         :type event_loop: EventLoop
         :param ice_servers: list of ICE TURN servers
         :type ice_servers: list of dicts
+        :param input_uri: URI for GStreamer uridecodebin
+        :type input_uri: str
         """
         log.info("Starting pipeline")
         self.event_loop = event_loop
-        self.pipe = Gst.parse_launch(PIPELINE_DESC)
+        self.input_uri = input_uri
+        self.pipe = Gst.parse_launch(PIPELINE_DESC.format(input_uri=input_uri))
         self.webrtc = self.pipe.get_by_name("send")
         self.webrtc.connect("on-negotiation-needed", self.on_negotiation_needed)
         self.webrtc.connect("on-ice-candidate", self.on_ice_candidate)

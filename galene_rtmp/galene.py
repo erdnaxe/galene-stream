@@ -124,18 +124,20 @@ class GaleneClient(WebRTCClient):
             raise RuntimeError("failed to join room")
         self.ice_servers = response.get("rtcConfiguration").get("iceServers")
 
-    async def loop(self, event_loop) -> int:
+    async def loop(self, event_loop, input_uri: str) -> int:
         """Client loop
 
         :param event_loop: asyncio event loop
         :type event_loop: EventLoop
+        :param input_uri: URI for GStreamer uridecodebin
+        :type input_uri: str
         :raises RuntimeError: if client is not connected
         :return: exit code
         :rtype: int
         """
         if self.conn is None:
             raise RuntimeError("client not connected")
-        self.start_pipeline(event_loop, self.ice_servers)
+        self.start_pipeline(event_loop, self.ice_servers, input_uri)
 
         async for message in self.conn:
             message = json.loads(message)
@@ -170,7 +172,7 @@ class GaleneClient(WebRTCClient):
                 continue  # ignore user events
             elif message["type"] == "close":
                 continue  # ignore close events
-            elif message["chat"] == "close":
+            elif message["type"] == "chat":
                 continue  # ignore chat events
             else:
                 # Oh no! We receive something not implemented
