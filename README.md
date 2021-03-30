@@ -68,11 +68,38 @@ Then you can stream to `rtmp://127.0.0.1:1935/live` with stream key `test`.
 
 ### Configuration for SRT streaming
 
-Coming soon.
+SRT support is still experimental in some Linux distributions.
+It has been reported to work on ArchLinux (on 2021/03/30).
+
+Launch the gateway using:
+
+```
+python -m galene_rtmp --input "srt://localhost:9710?mode=listener" --output "wss://galene.example.com/ws" --group test --username bot
+```
+
+Then you can stream to `srt://localhost:9710` with no stream key.
+
+### Configuration for file streaming
+
+For debugging purposes you can directly stream a file,
+
+```
+python -m galene_rtmp --input "file://source.webm" --output "wss://galene.example.com/ws" --group test --username bot
+```
 
 ## Contributing
 
 See [contributing guidelines](./CONTRIBUTING.md).
+
+### Debugging GStreamer pipeline
+
+You may use these environment variables,
+
+```
+GST_DEBUG="GST_TRACER:7" GST_TRACERS="latency;stats;rusage" GST_DEBUG_FILE=trace.log
+```
+
+Then you may inspect logs using `gst-stats-1.0 trace.log`.
 
 ## Authors
 
