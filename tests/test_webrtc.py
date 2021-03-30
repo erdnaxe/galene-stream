@@ -14,5 +14,5 @@ def test_init_webrtc():
     """Test WebRTC initialization."""
     event_loop = asyncio.get_event_loop()
     client = WebRTCClient()
-    client.start_pipeline(event_loop, [])
+    client.start_pipeline(event_loop, [], "rtmp://localhost:1935/live/test")
     client.close_pipeline()
