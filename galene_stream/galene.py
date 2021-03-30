@@ -138,6 +138,7 @@ class GaleneClient(WebRTCClient):
         if self.conn is None:
             raise RuntimeError("client not connected")
         self.start_pipeline(event_loop, self.ice_servers, input_uri)
+        log.info("Waiting for incoming stream...")
 
         async for message in self.conn:
             message = json.loads(message)
