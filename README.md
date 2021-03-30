@@ -1,9 +1,8 @@
 # Galène RTMP gateway
 
-Gateway to send RTMP streams to
+Gateway to send RTMP or SRT streams to
 [Galène videoconference server](https://galene.org/).
-It is based on Gstreamer RTMP and WebRTC support and implements the Galène
-protocol.
+It is based on Gstreamer and implements the Galène protocol.
 
 ## User guide
 
