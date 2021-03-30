@@ -43,7 +43,10 @@ if __name__ == "__main__":
         "-i",
         "--input",
         default="rtmp://localhost:1935/live/test",
-        help='URI to use as GStreamer "uridecodebin" module input',
+        help=(
+            'URI to use as GStreamer "uridecodebin" module input, '
+            'default to "rtmp://localhost:1935/live/test"'
+        ),
     )
     parser.add_argument(
         "-o",
