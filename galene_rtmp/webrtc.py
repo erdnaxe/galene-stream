@@ -39,9 +39,9 @@ log = logging.getLogger(__name__)
 
 PIPELINE_DESC = """
 webrtcbin name=send bundle-policy=max-bundle
- uridecodebin uri=rtmp://localhost:1935/live/test name=bin ! queue ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay !
+ uridecodebin uri=rtmp://localhost:1935/live/test name=bin ! videoconvert ! queue ! vp8enc deadline=1 ! rtpvp8pay !
  queue ! application/x-rtp,media=video,encoding-name=VP8,payload=97 ! send.
- bin. ! queue ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay !
+ bin. ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay !
  queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=96 ! send.
 """
 
