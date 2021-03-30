@@ -122,7 +122,7 @@ class GaleneClient(WebRTCClient):
             response = json.loads(response)
         if response["kind"] != "join":
             raise RuntimeError("failed to join room")
-        self.ice_servers = response.get("rtcConfiguration").get("iceServers")
+        self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
 
     async def loop(self, event_loop, input_uri: str) -> int:
         """Client loop
