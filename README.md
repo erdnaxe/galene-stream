@@ -21,7 +21,7 @@ pip3 install --user galene-rtmp
 ### Installation on ArchLinux
 
 ```bash
-sudo pacman -S python-setuptools python-pip python-websockets python-gobject gst-python gst-plugins-base gst-plugins-bad
+sudo pacman -S python-setuptools python-pip python-websockets python-gobject gobject-introspection gst-python gst-plugins-base gst-plugins-bad
 pip install --user galene-rtmp
 ```
 
