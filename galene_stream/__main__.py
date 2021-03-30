@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Main script for Galène RTMP gateway.
+Main script for Galène stream gateway.
 """
 
 import argparse
@@ -10,7 +10,7 @@ import asyncio
 import logging
 import sys
 
-from galene_rtmp.galene import GaleneClient
+from galene_stream.galene import GaleneClient
 
 
 def main(opt: argparse.Namespace):
@@ -30,8 +30,8 @@ def main(opt: argparse.Namespace):
 if __name__ == "__main__":
     # Arguments parser
     parser = argparse.ArgumentParser(
-        prog="galene-rtmp",
-        description="RTMP to Galène gateway.",
+        prog="galene-stream",
+        description="Galène stream gateway.",
     )
     parser.add_argument(
         "--debug",

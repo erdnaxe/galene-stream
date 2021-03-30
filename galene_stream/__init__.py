@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 """
-RTMP to Galène gateway.
+Galène stream gateway.
 """
 
 try:
-    from galene_rtmp.version import version as __version__
+    from galene_stream.version import version as __version__
 except ImportError:
     __version__ = "dev"
 

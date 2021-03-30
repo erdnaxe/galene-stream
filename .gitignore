@@ -35,4 +35,4 @@ venv/
 access.log
 
 # Automatic versioning
-galene_rtmp/version.py
+galene_stream/version.py

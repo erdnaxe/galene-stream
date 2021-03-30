@@ -12,7 +12,7 @@ import ssl
 
 import websockets
 
-from galene_rtmp.webrtc import WebRTCClient
+from galene_stream.webrtc import WebRTCClient
 
 log = logging.getLogger(__name__)
 

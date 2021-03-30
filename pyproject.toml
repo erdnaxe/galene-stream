@@ -3,16 +3,16 @@ requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "galene_rtmp/version.py"
+write_to = "galene_stream/version.py"
 
 [tool.interrogate]
 ignore-private = true
 fail-under = 90
-exclude = ["setup.py", "build", "galene_rtmp/version.py"]
+exclude = ["setup.py", "build", "galene_stream/version.py"]
 verbose = 2
 
 [tool.check-manifest]
-ignore = ["galene_rtmp/version.py"]
+ignore = ["galene_stream/version.py"]
 
 [tool.tox]
 legacy_tox_ini = """
@@ -34,8 +34,8 @@ deps =
     interrogate
     check-manifest
 commands =
-    black --check --diff galene_rtmp tests setup.py
-    isort --check-only --diff --profile black galene_rtmp tests
+    black --check --diff galene_stream tests setup.py
+    isort --check-only --diff --profile black galene_stream tests
     interrogate
     check-manifest
 """

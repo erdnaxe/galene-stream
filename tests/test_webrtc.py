@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: MIT
 
 """
-Test module for galene_rtmp.webrtc.
+Test module for galene_stream.webrtc.
 """
 
 import asyncio
 
-from galene_rtmp.webrtc import WebRTCClient
+from galene_stream.webrtc import WebRTCClient
 
 
 def test_init_webrtc():

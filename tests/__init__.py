@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: MIT
 
 """
-Test module for galene_rtmp.
+Test module for galene_stream.
 """
