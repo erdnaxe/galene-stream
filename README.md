@@ -61,7 +61,7 @@ nginx -c nginx.conf -p $PWD
 You may launch the gateway after the NGINX server using:
 
 ```
-python -m galene_rtmp --server "wss://galene.example.com/ws" --group test --username bot
+python -m galene_rtmp --output "wss://galene.example.com/ws" --group test --username bot
 ```
 
 Then you can stream to `rtmp://127.0.0.1:1935/live` with stream key `test`.
