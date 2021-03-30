@@ -42,20 +42,33 @@ source venv/bin/activate
 pip install -e .
 ```
 
-### Configuration
+### Configuration for RTMP streaming
+
+```
++--------------------+      +----------+      +-----------+        +------+
+|Streaming software  | RTMP |NGINX RTMP| RTMP |Galène RTMP| WebRTC |Galène|
+|(such as OBS-Studio)+------>  Server  <------+  Gateway  +-------->      |
++--------------------+      +----------+      +-----------+        +------+
+```
 
 You need a NGINX RTMP server, you may remix the provided
-[nginx.conf](./docs/nginx.conf).
+[nginx.conf](./docs/nginx.conf). You can launch NGINX as user using:
 
 ```
 nginx -c nginx.conf -p $PWD
 ```
 
-You may now launch the gateway using:
+You may launch the gateway after the NGINX server using:
 
 ```
 python -m galene_rtmp --server "wss://galene.example.com/ws" --group test --username bot
 ```
+
+Then you can stream to `rtmp://127.0.0.1:1935/live` with stream key `test`.
+
+### Configuration for SRT streaming
+
+Coming soon.
 
 ## Contributing
 
