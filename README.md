@@ -60,7 +60,7 @@ nginx -c nginx.conf -p $PWD
 You may launch the gateway after the NGINX server using:
 
 ```
-python -m galene_stream --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --output "wss://galene.example.com/ws" --group test --username bot
 ```
 
 Then you can stream to `rtmp://127.0.0.1:1935/live` with stream key `test`.
@@ -73,7 +73,7 @@ It has been reported to work on ArchLinux (on 2021/03/30).
 Launch the gateway using:
 
 ```
-python -m galene_stream --input "srt://localhost:9710?mode=listener" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "srt://localhost:9710?mode=listener" --output "wss://galene.example.com/ws" --group test --username bot
 ```
 
 Then you can stream to `srt://localhost:9710` with no stream key.
@@ -83,7 +83,7 @@ Then you can stream to `srt://localhost:9710` with no stream key.
 For debugging purposes you can directly stream a file,
 
 ```
-python -m galene_stream --input "file://source.webm" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "file://source.webm" --output "wss://galene.example.com/ws" --group test --username bot
 ```
 
 ## Contributing
