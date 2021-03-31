@@ -37,13 +37,14 @@ if len(missing):
 
 log = logging.getLogger(__name__)
 
-PIPELINE_DESC = """
-webrtcbin name=send bundle-policy=max-bundle
- uridecodebin uri={input_uri} name=bin ! videoconvert ! queue ! vp8enc deadline=10 ! rtpvp8pay !
- queue ! application/x-rtp,media=video,encoding-name=VP8,payload=97 ! send.
- bin. ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay !
- queue ! application/x-rtp,media=audio,encoding-name=OPUS,payload=96 ! send.
-"""
+PIPELINE_DESC = (
+    "webrtcbin name=send bundle-policy=max-bundle "
+    "uridecodebin uri={input_uri} name=bin "
+    "bin. ! queue ! vp8enc deadline=10 ! rtpvp8pay ! "
+    " application/x-rtp,media=video,payload=97 ! rtprtxqueue ! send. "
+    "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay ! "
+    " application/x-rtp,media=audio,payload=96 ! rtprtxqueue ! send."
+)
 
 
 class WebRTCClient:
