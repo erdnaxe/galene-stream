@@ -166,7 +166,8 @@ class GaleneClient(WebRTCClient):
             elif message["type"] == "usermessage":
                 value = message.get("value")
                 if message["kind"] == "error":
-                    raise RuntimeError(f"Server returned error: {value}")
+                    log.error(f"Server returned error: {value}")
+                    break
                 else:
                     log.warn(f"Server sent: {value}")
             elif message["type"] == "user":
