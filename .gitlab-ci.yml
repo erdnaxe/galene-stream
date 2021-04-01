@@ -34,7 +34,7 @@ tests-archlinux:
   image: archlinux:latest
   stage: testing
   before_script:
-    - pacman -Sy --noconfirm python-setuptools python-tox python-websockets python-gobject gobject-introspection gst-python gst-plugins-base gst-plugins-bad
+    - pacman -Sy --noconfirm python-setuptools python-tox python-websockets python-gobject gobject-introspection gst-python gst-plugins-base gst-plugins-bad gst-plugins-ugly gst-libav
   script:
     - tox -e tests
 
