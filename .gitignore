@@ -15,6 +15,9 @@ docs/_build/
 # Nix shell
 shell.nix
 
+# Vagrant
+.vagrant
+
 # Spyder project settings
 .spyderproject
 .spyproject

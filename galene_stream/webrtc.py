@@ -29,6 +29,7 @@ needed = [
     "srtp",
     "rtp",
     "rtpmanager",
+    "x264",
 ]
 missing = list(filter(lambda p: Gst.Registry.get().find_plugin(p) is None, needed))
 if len(missing):

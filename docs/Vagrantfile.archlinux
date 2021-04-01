@@ -1,0 +1,39 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrant configuration for testing.
+# Run with: `export VAGRANT_VAGRANTFILE=Vagrantfile.archlinux && vagrant up`
+# then you can `vagrant ssh`, or `vagrant destroy`.
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "archlinux/archlinux"
+  config.vm.define "ArchLinux galene-stream"
+
+  # Forward 8888 (UDP), 9710 (SRT) port
+  config.vm.network "forwarded_port", guest: 8888, host: 8888, protocol: "udp"
+  config.vm.network "forwarded_port", guest: 9710, host: 9710, protocol: "udp"
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine and only allow access
+  # via 127.0.0.1 to disable public access
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, protocol: "udp", host_ip: "127.0.0.1"
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  # Share an additional folder to the guest VM.
+  config.vm.synced_folder "../", "/galene-rtmp"
+
+  # Provision project.
+  config.vm.provision "shell", inline: <<-SHELL
+    pacman -Syu --noconfirm
+    pacman -S --noconfirm python-setuptools python-pip python-websockets python-gobject gobject-introspection gst-python gst-plugins-base gst-plugins-bad gst-plugins-ugly gst-libav git
+    pip install -e /galene-rtmp
+  SHELL
+end

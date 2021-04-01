@@ -4,6 +4,8 @@ Gateway to send streams such as RTMP or SRT to
 [Galène videoconference server](https://galene.org/).
 It is based on Gstreamer and implements the Galène protocol.
 
+Tested on Debian Bullseye, ArchLinux and NixOS 20.09.
+
 ## User guide
 
 Real-time video conversion requires resources. If many users are going to use
@@ -20,7 +22,7 @@ pip3 install --user galene-stream
 ### Installation on ArchLinux
 
 ```bash
-sudo pacman -S python-setuptools python-pip python-websockets python-gobject gobject-introspection gst-python gst-plugins-base gst-plugins-bad
+sudo pacman -S python-setuptools python-pip python-websockets python-gobject gobject-introspection gst-python gst-plugins-base gst-plugins-bad gst-plugins-ugly gst-libav
 pip install --user galene-stream
 ```
 
@@ -41,6 +43,16 @@ source venv/bin/activate
 pip install -e .
 ```
 
+### Configuration for UDP streaming
+
+Launch the gateway using:
+
+```
+galene-stream --input "udp://localhost:8888" --output "wss://galene.example.com/ws" --group test --username bot
+```
+
+Then you can stream to `udp://localhost:8888` with no stream key.
+
 ### Configuration for RTMP streaming
 
 ```
@@ -60,7 +72,7 @@ nginx -c nginx.conf -p $PWD
 You may launch the gateway after the NGINX server using:
 
 ```
-galene-stream --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "rtmp://localhost:1935/live/test" --output "wss://galene.example.com/ws" --group test --username bot
 ```
 
 Then you can stream to `rtmp://127.0.0.1:1935/live` with stream key `test`.
