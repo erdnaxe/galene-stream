@@ -4,7 +4,7 @@ Gateway to send streams such as RTMP or SRT to
 [Galène videoconference server](https://galene.org/).
 It is based on Gstreamer and implements the Galène protocol.
 
-Tested on Debian Bullseye, ArchLinux and NixOS 20.09.
+Tested on Debian Bullseye, Ubuntu 20.04, ArchLinux and NixOS 20.09.
 
 ## User guide
 
@@ -15,7 +15,7 @@ accordingly.
 ### Installation on Debian/Ubuntu
 
 ```bash
-sudo apt install python3-pip python3-gi python3-gi-cairo python3-websockets gir1.2-gst-plugins-bad-1.0 gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-nice
+sudo apt install python3-pip python3-gi python3-gi-cairo python3-websockets gir1.2-gst-plugins-bad-1.0 gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-nice
 pip3 install --user galene-stream
 ```
 
