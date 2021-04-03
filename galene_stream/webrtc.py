@@ -38,14 +38,12 @@ if len(missing):
 
 log = logging.getLogger(__name__)
 
+# webrtcbin latency parameter was added in gstreamer 1.18
 PIPELINE_DESC = (
-    "webrtcbin name=send bundle-policy=max-bundle "
+    "webrtcbin name=send bundle-policy=max-bundle latency=500 "
     "uridecodebin uri={input_uri} name=bin "
-    "bin. ! queue ! vp8enc deadline=30 error-resilient=1 "
-    "target-bitrate=1048576 token-partitions=2 cpu-used=3 end-usage=vbr "
-    "! rtpvp8pay pt=97 ! rtprtxqueue ! send. "
-    "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 "
-    "! rtprtxqueue ! send."
+    "bin. ! vp8enc deadline=1 keyframe-max-dist=5 target-bitrate=5000000 ! rtpvp8pay pt=97 ! send. "
+    "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 ! send."
 )
 
 

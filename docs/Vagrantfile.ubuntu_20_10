@@ -1,0 +1,39 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrant configuration for testing.
+# Run with: `export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu_20_10 && vagrant up`
+# then you can `vagrant ssh`, or `vagrant destroy`.
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/groovy64"
+  config.vm.define "Ubuntu 20.10 galene-stream"
+
+  # Forward 8888 (UDP), 9710 (SRT) port
+  config.vm.network "forwarded_port", guest: 8888, host: 8888, protocol: "udp"
+  config.vm.network "forwarded_port", guest: 9710, host: 9710, protocol: "udp"
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine and only allow access
+  # via 127.0.0.1 to disable public access
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, protocol: "udp", host_ip: "127.0.0.1"
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  # Share an additional folder to the guest VM.
+  config.vm.synced_folder "../", "/galene-rtmp"
+
+  # Provision project.
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update && apt-get dist-upgrade -y --autoremove --purge
+    apt-get install -y python3-pip python3-gi python3-gi-cairo python3-websockets gir1.2-gst-plugins-bad-1.0 gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-nice git
+    pip3 install -e /galene-rtmp
+  SHELL
+end
