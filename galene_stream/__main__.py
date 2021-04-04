@@ -19,12 +19,12 @@ def start(opt: argparse.Namespace):
     :param opt: program options
     :type opt: argparse.Namespace
     """
-    client = GaleneClient(opt.group, opt.output, opt.username, opt.password)
+    client = GaleneClient(opt.input, opt.output, opt.group, opt.username, opt.password)
 
     # Connect and run main even loop
     event_loop = asyncio.get_event_loop()
     event_loop.run_until_complete(client.connect())
-    event_loop.run_until_complete(client.loop(event_loop, opt.input))
+    event_loop.run_until_complete(client.loop(event_loop))
 
 
 def main():
@@ -43,10 +43,10 @@ def main():
     parser.add_argument(
         "-i",
         "--input",
-        default="rtmp://localhost:1935/live/test",
+        required=True,
         help=(
             'URI to use as GStreamer "uridecodebin" module input, '
-            'default to "rtmp://localhost:1935/live/test"'
+            'e.g. "rtmp://localhost:1935/live/test"'
         ),
     )
     parser.add_argument(

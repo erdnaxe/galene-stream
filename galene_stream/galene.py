@@ -17,18 +17,26 @@ from galene_stream.webrtc import WebRTCClient
 log = logging.getLogger(__name__)
 
 
-class GaleneClient(WebRTCClient):
+class GaleneClient:
     """Galène protocol implementation."""
 
     def __init__(
-        self, group: str, server: str, username: str, password=None, identifier=None
+        self,
+        input_uri: str,
+        server: str,
+        group: str,
+        username: str,
+        password=None,
+        identifier=None,
     ):
         """Create GaleneClient
 
-        :param group: group to join
-        :type group: str
+        :param input_uri: URI for GStreamer uridecodebin
+        :type input_uri: str
         :param server: websocket url to connect to
         :type server: str
+        :param group: group to join
+        :type group: str
         :param username: group user name
         :type username: str
         :param password: group user password if required
@@ -41,13 +49,16 @@ class GaleneClient(WebRTCClient):
             # Create random client id
             identifier = secrets.token_bytes(16).hex()
 
-        self.group = group
         self.server = server
+        self.group = group
         self.username = username
         self.password = password
         self.client_id = identifier
         self.conn = None
         self.ice_servers = None
+        self.webrtc = WebRTCClient(
+            input_uri, self.send_sdp_offer, self.send_ice_candidate
+        )
 
     async def send(self, message: dict):
         """Send message to remote.
@@ -115,8 +126,8 @@ class GaleneClient(WebRTCClient):
             "password": self.password,
         }
         await self.send(msg)
-        response = None
-        while response is None or response["type"] != "joined":
+        response = {"type": "none"}
+        while response["type"] != "joined":
             # The server will send 'user' messages that we ignore
             response = await self.conn.recv()
             response = json.loads(response)
@@ -124,20 +135,18 @@ class GaleneClient(WebRTCClient):
             raise RuntimeError("failed to join room")
         self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
 
-    async def loop(self, event_loop, input_uri: str) -> int:
+    async def loop(self, event_loop) -> int:
         """Client loop
 
         :param event_loop: asyncio event loop
         :type event_loop: EventLoop
-        :param input_uri: URI for GStreamer uridecodebin
-        :type input_uri: str
         :raises RuntimeError: if client is not connected
         :return: exit code
         :rtype: int
         """
         if self.conn is None:
             raise RuntimeError("client not connected")
-        self.start_pipeline(event_loop, self.ice_servers, input_uri)
+        self.webrtc.start_pipeline(event_loop, self.ice_servers)
         log.info("Waiting for incoming stream...")
 
         async for message in self.conn:
@@ -153,16 +162,16 @@ class GaleneClient(WebRTCClient):
             elif message["type"] == "answer":
                 # Server is sending a SDP offer
                 sdp = message.get("sdp")
-                self.set_remote_sdp(sdp)
+                self.webrtc.set_remote_sdp(sdp)
             elif message["type"] == "ice":
                 # Server is sending trickle ICE candidates
                 log.debug("Receiving new ICE candidate from remote")
                 mline_index = message.get("candidate").get("sdpMLineIndex")
                 candidate = message.get("candidate").get("candidate")
-                self.add_ice_candidate(mline_index, candidate)
+                self.webrtc.add_ice_candidate(mline_index, candidate)
             elif message["type"] == "renegotiate":
                 # Server is asking to renegotiate WebRTC session
-                self.on_negotiation_needed(self.webrtc)
+                self.webrtc.on_negotiation_needed(self.webrtc)
             elif message["type"] == "usermessage":
                 value = message.get("value")
                 if message["kind"] == "error":
@@ -180,4 +189,4 @@ class GaleneClient(WebRTCClient):
                 # Oh no! We receive something not implemented
                 log.warn(f"Not implemented {message}")
 
-        self.close_pipeline()
+        self.webrtc.close_pipeline()

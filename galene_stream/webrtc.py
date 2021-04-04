@@ -29,17 +29,26 @@ class WebRTCClient:
     Based on <https://gitlab.freedesktop.org/gstreamer/gst-examples/>.
     """
 
-    def __init__(self):
-        """Init WebRTCClient."""
+    def __init__(self, input_uri: str, sdp_offer_callback, ice_candidate_callback):
+        """Init WebRTCClient.
+
+        :param input_uri: URI for GStreamer uridecodebin
+        :type input_uri: str
+        :param sdp_offer_callback: function to send SDP offer
+        :type sdp_offer_callback: function
+        :param ice_candidate_callback: function to send ICE candidate
+        :type ice_candidate_callback: function
+        """
         self.event_loop = None
         self.pipe = None
         self.webrtc = None
-        self.input_uri = ""
+        self.sdp_offer_callback = sdp_offer_callback
+        self.ice_candidate_callback = ice_candidate_callback
 
         # webrtcbin latency parameter was added in gstreamer 1.18
         self.pipeline_desc = (
             "webrtcbin name=send bundle-policy=max-bundle latency=500 "
-            "uridecodebin uri={input_uri} name=bin "
+            f"uridecodebin uri={input_uri} name=bin "
             "bin. ! vp8enc deadline=1 keyframe-max-dist=5 target-bitrate=5000000 ! rtpvp8pay pt=97 ! send. "
             "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 ! send."
         )
@@ -87,7 +96,7 @@ class WebRTCClient:
         # Send local SDP offer to remote
         offer = offer.sdp.as_text()
         future = asyncio.run_coroutine_threadsafe(
-            self.send_sdp_offer(offer), self.event_loop
+            self.sdp_offer_callback(offer), self.event_loop
         )
         future.result()  # wait
 
@@ -117,7 +126,7 @@ class WebRTCClient:
         """
         candidate = {"candidate": candidate, "sdpMLineIndex": mline_index}
         future = asyncio.run_coroutine_threadsafe(
-            self.send_ice_candidate(candidate), self.event_loop
+            self.ice_candidate_callback(candidate), self.event_loop
         )
         future.result()  # wait
 
@@ -147,20 +156,17 @@ class WebRTCClient:
         """
         self.webrtc.emit("add-ice-candidate", mline_index, candidate)
 
-    def start_pipeline(self, event_loop, ice_servers, input_uri):
+    def start_pipeline(self, event_loop, ice_servers):
         """Start gstreamer pipeline and connect WebRTC events.
 
         :param event_loop: asyncio event loop
         :type event_loop: EventLoop
         :param ice_servers: list of ICE TURN servers
         :type ice_servers: list of dicts
-        :param input_uri: URI for GStreamer uridecodebin
-        :type input_uri: str
         """
         log.info("Starting pipeline")
         self.event_loop = event_loop
-        self.input_uri = input_uri
-        self.pipe = Gst.parse_launch(self.pipeline_desc.format(input_uri=input_uri))
+        self.pipe = Gst.parse_launch(self.pipeline_desc)
         self.webrtc = self.pipe.get_by_name("send")
         self.webrtc.connect("on-negotiation-needed", self.on_negotiation_needed)
         self.webrtc.connect("on-ice-candidate", self.on_ice_candidate)
