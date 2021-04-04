@@ -8,6 +8,8 @@ WebRTC support using Gstreamer.
 import asyncio
 import json
 import logging
+import os
+import sys
 
 import gi
 
@@ -16,35 +18,9 @@ gi.require_version("Gst", "1.0")
 gi.require_version("GstWebRTC", "1.0")
 gi.require_version("GstSdp", "1.0")
 
-# Load Gst and check plugins
 from gi.repository import Gst, GstSdp, GstWebRTC
 
-Gst.init(None)
-needed = [
-    "opus",
-    "vpx",
-    "nice",
-    "webrtc",
-    "dtls",
-    "srtp",
-    "rtp",
-    "rtpmanager",
-    "x264",
-]
-missing = list(filter(lambda p: Gst.Registry.get().find_plugin(p) is None, needed))
-if len(missing):
-    raise RuntimeError(f"Missing gstreamer plugins: {missing}")
-
-
 log = logging.getLogger(__name__)
-
-# webrtcbin latency parameter was added in gstreamer 1.18
-PIPELINE_DESC = (
-    "webrtcbin name=send bundle-policy=max-bundle latency=500 "
-    "uridecodebin uri={input_uri} name=bin "
-    "bin. ! vp8enc deadline=1 keyframe-max-dist=5 target-bitrate=5000000 ! rtpvp8pay pt=97 ! send. "
-    "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 ! send."
-)
 
 
 class WebRTCClient:
@@ -59,6 +35,37 @@ class WebRTCClient:
         self.pipe = None
         self.webrtc = None
         self.input_uri = ""
+
+        # webrtcbin latency parameter was added in gstreamer 1.18
+        self.pipeline_desc = (
+            "webrtcbin name=send bundle-policy=max-bundle latency=500 "
+            "uridecodebin uri={input_uri} name=bin "
+            "bin. ! vp8enc deadline=1 keyframe-max-dist=5 target-bitrate=5000000 ! rtpvp8pay pt=97 ! send. "
+            "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 ! send."
+        )
+
+        # If gstreamer debug level is undefined, show warnings and errors
+        if "GST_DEBUG" not in os.environ:
+            os.environ["GST_DEBUG"] = "2"
+
+        # Initialize GStreamer and check available plugins
+        Gst.init(None)
+        needed = [
+            "opus",
+            "vpx",
+            "nice",
+            "webrtc",
+            "dtls",
+            "srtp",
+            "rtp",
+            "rtpmanager",
+            "x264",
+        ]
+        missing = filter(lambda p: Gst.Registry.get().find_plugin(p) is None, needed)
+        missing = list(missing)
+        if len(missing):
+            log.error(f"Missing gstreamer plugins: {missing}")
+            sys.exit(1)
 
     def on_offer_created(self, promise, _, __):
         """``on-offer-created`` event handler.
@@ -153,7 +160,7 @@ class WebRTCClient:
         log.info("Starting pipeline")
         self.event_loop = event_loop
         self.input_uri = input_uri
-        self.pipe = Gst.parse_launch(PIPELINE_DESC.format(input_uri=input_uri))
+        self.pipe = Gst.parse_launch(self.pipeline_desc.format(input_uri=input_uri))
         self.webrtc = self.pipe.get_by_name("send")
         self.webrtc.connect("on-negotiation-needed", self.on_negotiation_needed)
         self.webrtc.connect("on-ice-candidate", self.on_ice_candidate)
