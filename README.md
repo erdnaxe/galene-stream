@@ -82,6 +82,10 @@ Then you can stream to `rtmp://127.0.0.1:1935/live` with stream key `test`.
 SRT support is still experimental in some Linux distributions.
 It has been reported to work on ArchLinux (on 2021/03/30).
 
+When using OBS, you need to have FFMpeg compiled with SRT support.
+To check if SRT is available, run `ffmpeg -protocols | grep srt`.
+On Windows and MacOS, OBS comes with his own FFMpeg that will work.
+
 Launch the gateway using:
 
 ```
@@ -89,6 +93,8 @@ galene-stream --input "srt://localhost:9710?mode=listener" --output "wss://galen
 ```
 
 Then you can stream to `srt://localhost:9710` with no stream key.
+
+More information on [OBS Wiki, Streaming With SRT Protocol](https://obsproject.com/wiki/Streaming-With-SRT-Protocol).
 
 ### Configuration for file streaming
 
