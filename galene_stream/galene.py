@@ -171,7 +171,7 @@ class GaleneClient:
                 self.webrtc.add_ice_candidate(mline_index, candidate)
             elif message["type"] == "renegotiate":
                 # Server is asking to renegotiate WebRTC session
-                self.webrtc.on_negotiation_needed(self.webrtc)
+                self.webrtc.on_negotiation_needed(self.webrtc.webrtc)
             elif message["type"] == "usermessage":
                 value = message.get("value")
                 if message["kind"] == "error":
