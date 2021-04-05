@@ -1,5 +1,5 @@
 # Include documentation
-recursive-include docs *.conf Vagrantfile*
+recursive-include docs *.png *.conf Vagrantfile*
 
 # Include metadata files
 include .gitlab-ci.yml CONTRIBUTING.md
