@@ -6,6 +6,9 @@ It is based on Gstreamer and implements the Galène protocol.
 
 Tested on Debian Bullseye, Ubuntu 20.04, Ubuntu 20.10, ArchLinux and NixOS 20.09.
 
+**This project is still not production ready, and you might experience
+jittering and crashes.**
+
 ![Streaming from OBS to Galène, video background from KaMy Video Stock](./docs/demo.png)
 
 ## User guide
