@@ -29,7 +29,9 @@ class WebRTCClient:
     Based on <https://gitlab.freedesktop.org/gstreamer/gst-examples/>.
     """
 
-    def __init__(self, input_uri: str, sdp_offer_callback, ice_candidate_callback, stats_callback):
+    def __init__(
+        self, input_uri: str, sdp_offer_callback, ice_candidate_callback, stats_callback
+    ):
         """Init WebRTCClient.
 
         :param input_uri: URI for GStreamer uridecodebin
