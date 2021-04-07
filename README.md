@@ -113,6 +113,11 @@ galene-stream --input "file://source.webm" --output "wss://galene.example.com/ws
 
 See [contributing guidelines](./CONTRIBUTING.md).
 
+### Collecting statistics about GStreamer WebRTC element
+
+During a stream, you can send `!webrtc` in the chat to get some statistics
+about the connectivity between the gateway and Galène.
+
 ### Debugging GStreamer pipeline
 
 You may use these environment variables,
