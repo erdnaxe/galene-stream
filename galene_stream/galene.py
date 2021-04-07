@@ -28,6 +28,7 @@ class GaleneClient:
         username: str,
         password=None,
         identifier=None,
+        ice_servers=[],
     ):
         """Create GaleneClient
 
@@ -43,6 +44,9 @@ class GaleneClient:
         :type password: str, optional
         :param identifier: client id, defaults to random
         :type identifier: str, optional
+        :param ice_servers: TURN/STUN servers to use, default to those announced
+            by the server
+        :type ice_servers: [str]
         """
         super().__init__()
         if identifier is None:
@@ -133,7 +137,8 @@ class GaleneClient:
             response = json.loads(response)
         if response["kind"] != "join":
             raise RuntimeError("failed to join room")
-        self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
+        if self.ice_servers is None:
+            self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
 
     async def loop(self, event_loop) -> int:
         """Client loop
