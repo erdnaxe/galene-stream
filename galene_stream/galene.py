@@ -156,14 +156,18 @@ class GaleneClient:
         if self.ice_servers is None:
             self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
 
-    async def loop(self, event_loop) -> int:
+    async def close(self):
+        """Close connection."""
+        log.info("Closing WebSocket connection")
+        self.webrtc.close_pipeline()
+        await self.conn.close()
+
+    async def loop(self, event_loop):
         """Client loop
 
         :param event_loop: asyncio event loop
         :type event_loop: EventLoop
         :raises RuntimeError: if client is not connected
-        :return: exit code
-        :rtype: int
         """
         if self.conn is None:
             raise RuntimeError("client not connected")
@@ -212,5 +216,3 @@ class GaleneClient:
             else:
                 # Oh no! We receive something not implemented
                 log.warn(f"Not implemented {message}")
-
-        self.webrtc.close_pipeline()

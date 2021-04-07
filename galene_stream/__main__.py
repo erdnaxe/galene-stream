@@ -24,7 +24,12 @@ def start(opt: argparse.Namespace):
     # Connect and run main even loop
     event_loop = asyncio.get_event_loop()
     event_loop.run_until_complete(client.connect())
-    event_loop.run_until_complete(client.loop(event_loop))
+    try:
+        event_loop.run_until_complete(client.loop(event_loop))
+        event_loop.run_until_complete(client.close())
+    except KeyboardInterrupt:
+        event_loop.run_until_complete(client.close())
+        sys.exit(1)
 
 
 def main():
@@ -85,10 +90,7 @@ def main():
         format="\033[90m%(asctime)s\033[1;0m [%(name)s] %(levelname)s %(message)s\033[1;0m",
     )
 
-    try:
-        start(options)
-    except KeyboardInterrupt:
-        sys.exit(1)
+    start(options)
 
 
 if __name__ == "__main__":

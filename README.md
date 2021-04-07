@@ -120,6 +120,8 @@ about the connectivity between the gateway and Galène.
 
 ### Debugging GStreamer pipeline
 
+#### Logging pipeline statistics
+
 You may use these environment variables,
 
 ```
@@ -127,6 +129,16 @@ GST_DEBUG="GST_TRACER:7" GST_TRACERS="latency;stats;rusage" GST_DEBUG_FILE=trace
 ```
 
 Then you may inspect logs using `gst-stats-1.0 trace.log`.
+
+#### Plotting pipeline graph
+
+It is possible to plot pipeline status just before exiting the script by setting
+`GST_DEBUG_DUMP_DOT_DIR` environnement variable to a directory.
+
+For example, `export GST_DEBUG_DUMP_DOT_DIR=.`.
+
+Then you can use GraphViz to generate an image from the dot file:
+`dot -Tpng pipeline.dot > pipeline.png`.
 
 ## Authors
 

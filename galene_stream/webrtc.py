@@ -253,6 +253,14 @@ class WebRTCClient:
     def close_pipeline(self):
         """Stop gstreamer pipeline."""
         log.info("Closing pipeline")
-        self.pipe.set_state(Gst.State.NULL)
+
+        # If pipeline is running, then export pipeline graph before closing
+        # To use this, set GST_DEBUG_DUMP_DOT_DIR environnement variable
+        if self.pipe is not None:
+            Gst.debug_bin_to_dot_file_with_ts(
+                self.pipe, Gst.DebugGraphDetails.ALL, "pipeline"
+            )
+            self.pipe.set_state(Gst.State.NULL)
+
         self.pipe = None
         self.webrtc = None
