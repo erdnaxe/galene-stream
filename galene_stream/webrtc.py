@@ -170,7 +170,13 @@ class WebRTCClient:
         self.webrtc = self.pipe.get_by_name("send")
         self.webrtc.connect("on-negotiation-needed", self.on_negotiation_needed)
         self.webrtc.connect("on-ice-candidate", self.on_ice_candidate)
-        self.pipe.set_state(Gst.State.PLAYING)
+
+        # Enable WebRTC negative acknowledgement and FEC
+        transceiver_count = self.webrtc.emit("get-transceivers").len
+        for i in range(transceiver_count):
+            transceiver = self.webrtc.emit("get-transceiver", i)
+            transceiver.set_property("do-nack", True)
+            transceiver.set_property("fec-type", GstWebRTC.WebRTCFECType.ULP_RED)
 
         # Add TURN servers
         try:
@@ -186,6 +192,9 @@ class WebRTCClient:
                 "add-turn-server signal is missing, maybe your gstreamer "
                 "is too old. Skipping TURN servers configuration"
             )
+
+        # Start
+        self.pipe.set_state(Gst.State.PLAYING)
 
     def close_pipeline(self):
         """Stop gstreamer pipeline."""
