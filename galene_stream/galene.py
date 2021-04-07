@@ -79,7 +79,7 @@ class GaleneClient:
         :param sdp: session description
         :type sdp: str
         """
-        log.info("Sending local SDP offer to remote")
+        log.debug(f"Sending local SDP offer to remote: {sdp}")
         # We use client_id as stream id, but it can differ
         msg = {
             "type": "offer",
@@ -167,6 +167,7 @@ class GaleneClient:
             elif message["type"] == "answer":
                 # Server is sending a SDP offer
                 sdp = message.get("sdp")
+                log.debug(f"Receiving SDP from remote: {sdp}")
                 self.webrtc.set_remote_sdp(sdp)
             elif message["type"] == "ice":
                 # Server is sending trickle ICE candidates
