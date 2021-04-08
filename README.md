@@ -48,6 +48,25 @@ source venv/bin/activate
 pip install -e .
 ```
 
+### Installation on Windows
+
+*Running the gateway on Windows is not tested and not recommended.*
+
+Go to <http://www.msys2.org/> and follow the instructions to set up a MSYS2
+environment. Then run `C:\msys64\mingw64.exe`, you should have a terminal
+window. Then execute,
+
+```bash
+# Update MSYS2
+pacman -Suy
+
+# Install Python3 and GStreamer
+pacman -S mingw-w64-x86_64-python mingw-w64-x86_64-gcc mingw-w64-x86_64-python-pip mingw-w64-x86_64-python-gobject mingw-w64-x86_64-gst-python mingw-w64-x86_64-gst-plugins-base mingw-w64-x86_64-gst-plugins-good mingw-w64-x86_64-gst-plugins-bad mingw-w64-x86_64-gst-plugins-ugly mingw-w64-x86_64-gst-libav
+pip install galene-stream
+
+python -m galene_stream --help
+```
+
 ### Configuration for UDP streaming
 
 Launch the gateway using:
