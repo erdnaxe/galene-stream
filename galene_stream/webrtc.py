@@ -49,7 +49,7 @@ class WebRTCClient:
         # webrtcbin latency parameter was added in gstreamer 1.18
         self.pipeline_desc = (
             "webrtcbin name=send bundle-policy=max-bundle latency=500 "
-            f"uridecodebin uri={input_uri} name=bin "
+            f'uridecodebin uri="{input_uri}" name=bin '
             "bin. ! vp8enc deadline=1 target-bitrate=2000000 ! rtpvp8pay pt=97 "
             '! rtprtxsend payload-type-map="application/x-rtp-pt-map,97=(uint)107" ! send. '
             "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 ! send."
