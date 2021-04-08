@@ -50,7 +50,8 @@ class WebRTCClient:
         self.pipeline_desc = (
             "webrtcbin name=send bundle-policy=max-bundle latency=500 "
             f"uridecodebin uri={input_uri} name=bin "
-            "bin. ! vp8enc deadline=1 keyframe-max-dist=5 target-bitrate=5000000 ! rtpvp8pay pt=97 ! send. "
+            "bin. ! vp8enc deadline=1 target-bitrate=2000000 ! rtpvp8pay pt=97 "
+            "! rtprtxsend payload-type-map=\"application/x-rtp-pt-map,97=(uint)107\" ! send. "
             "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 ! send."
         )
 
@@ -173,10 +174,8 @@ class WebRTCClient:
             "packets-received",
             "bitrate",
             "packets-lost",
-            "jitter",
             "recv-pli-count",
             "recv-nack-count",
-            "recv-packet-rate",
             "sr-ntptime",
         ]
         rtpbin = self.pipe.get_by_name("rtpsession0")
@@ -188,7 +187,8 @@ class WebRTCClient:
         stats = rtpbin.get_property("stats")
         sources_stats = stats.get_value("source-stats")
         for source_stats in sources_stats:
-            message.append({f: source_stats.get_value(f) for f in fields})
+            if source_stats.get_value("ssrc") != 0:
+                message.append({f: source_stats.get_value(f) for f in fields})
         return pprint.pformat(message, sort_dicts=False)
 
     def start_pipeline(self, event_loop, ice_servers):
@@ -211,7 +211,8 @@ class WebRTCClient:
         for i in range(transceiver_count):
             transceiver = self.webrtc.emit("get-transceiver", i)
             transceiver.set_property("do-nack", True)
-            transceiver.set_property("fec-type", GstWebRTC.WebRTCFECType.ULP_RED)
+            # ULPFEC is not yet supported by Galène
+            # transceiver.set_property("fec-type", GstWebRTC.WebRTCFECType.ULP_RED)
 
         # Add TURN servers
         try:
