@@ -19,7 +19,9 @@ def start(opt: argparse.Namespace):
     :param opt: program options
     :type opt: argparse.Namespace
     """
-    client = GaleneClient(opt.input, opt.output, opt.group, opt.username, opt.password)
+    client = GaleneClient(
+        opt.input, opt.output, opt.bitrate, opt.group, opt.username, opt.password
+    )
 
     # Connect and run main even loop
     event_loop = asyncio.get_event_loop()
@@ -59,6 +61,12 @@ def main():
         "--output",
         required=True,
         help='Galène server to connect to, e.g. "wss://galene.example.com/ws"',
+    )
+    parser.add_argument(
+        "-b",
+        "--bitrate",
+        default=1048576,
+        help="VP8 encoder bitrate in bit/s, you should adapt this to your network, default to 1048576",
     )
     parser.add_argument(
         "-g",

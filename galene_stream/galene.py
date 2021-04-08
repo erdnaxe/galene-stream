@@ -24,6 +24,7 @@ class GaleneClient:
         self,
         input_uri: str,
         server: str,
+        bitrate: int,
         group: str,
         username: str,
         password=None,
@@ -36,6 +37,8 @@ class GaleneClient:
         :type input_uri: str
         :param server: websocket url to connect to
         :type server: str
+        :param bitrate: VP8 encoder bitrate in bit/s
+        :type bitrate: int
         :param group: group to join
         :type group: str
         :param username: group user name
@@ -61,7 +64,7 @@ class GaleneClient:
         self.conn = None
         self.ice_servers = None
         self.webrtc = WebRTCClient(
-            input_uri, self.send_sdp_offer, self.send_ice_candidate
+            input_uri, bitrate, self.send_sdp_offer, self.send_ice_candidate
         )
 
     async def send(self, message: dict):
