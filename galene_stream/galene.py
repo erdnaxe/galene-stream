@@ -61,7 +61,7 @@ class GaleneClient:
         self.conn = None
         self.ice_servers = None
         self.webrtc = WebRTCClient(
-            input_uri, self.send_sdp_offer, self.send_ice_candidate, self.send_chat
+            input_uri, self.send_sdp_offer, self.send_ice_candidate
         )
 
     async def send(self, message: dict):
@@ -212,7 +212,9 @@ class GaleneClient:
             elif message["type"] == "chat":
                 # User might request statistics
                 if message.get("value") == "!webrtc":
-                    self.webrtc.get_stats()
+                    m = self.webrtc.get_stats()
+                    if m:
+                        await self.send_chat(m)
             else:
                 # Oh no! We receive something not implemented
                 log.warn(f"Not implemented {message}")

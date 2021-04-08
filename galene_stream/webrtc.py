@@ -9,6 +9,7 @@ import asyncio
 import json
 import logging
 import os
+import pprint
 import sys
 
 import gi
@@ -29,9 +30,7 @@ class WebRTCClient:
     Based on <https://gitlab.freedesktop.org/gstreamer/gst-examples/>.
     """
 
-    def __init__(
-        self, input_uri: str, sdp_offer_callback, ice_candidate_callback, stats_callback
-    ):
+    def __init__(self, input_uri: str, sdp_offer_callback, ice_candidate_callback):
         """Init WebRTCClient.
 
         :param input_uri: URI for GStreamer uridecodebin
@@ -40,15 +39,12 @@ class WebRTCClient:
         :type sdp_offer_callback: coroutine
         :param ice_candidate_callback: coroutine to send ICE candidate
         :type ice_candidate_callback: coroutine
-        :param stats_callback: coroutine to send statistics as chat message
-        :type stats_callback: coroutine
         """
         self.event_loop = None
         self.pipe = None
         self.webrtc = None
         self.sdp_offer_callback = sdp_offer_callback
         self.ice_candidate_callback = ice_candidate_callback
-        self.stats_callback = stats_callback
 
         # webrtcbin latency parameter was added in gstreamer 1.18
         self.pipeline_desc = (
@@ -135,50 +131,6 @@ class WebRTCClient:
         )
         future.result()  # wait
 
-    def _send_stat(self, _, value):
-        """Filter, format then send each statistics."""
-        name = value.get_name()
-        if name == "remote-outbound-rtp":
-            message = value.get_value("round-trip-time")
-            asyncio.run_coroutine_threadsafe(
-                self.stats_callback(f"round-trip-time: {message}"), self.event_loop
-            ).result()
-        elif name == "outbound-rtp":
-            message = {
-                "fir-count": value.get_value("fir-count"),
-                "pli-count": value.get_value("pli-count"),
-                "nack-count": value.get_value("nack-count"),
-                "bytes-sent": value.get_value("bytes-sent"),
-                "packets-sent": value.get_value("packets-sent"),
-            }
-            asyncio.run_coroutine_threadsafe(
-                self.stats_callback(f"outbound-rtp: {message}"), self.event_loop
-            ).result()
-        elif name == "remote-inbound-rtp":
-            message = {
-                "packets-received": value.get_value("packets-received"),
-                "packets-lost": value.get_value("packets-lost"),
-                "jitter": value.get_value("jitter"),
-            }
-            asyncio.run_coroutine_threadsafe(
-                self.stats_callback(f"remote-inbound-rtp: {message}"), self.event_loop
-            ).result()
-
-        return True  # continue foreach
-
-    def on_get_stats(self, promise):
-        """``on-get-stats`` event handler.
-
-        :param promise: promise running this event
-        :type promise: Gst.Promise
-        """
-        # Get stats from the promise calling the event
-        promise.wait()
-        reply = promise.get_reply()
-
-        # Format statistics
-        reply.foreach(self._send_stat)
-
     def set_remote_sdp(self, sdp: str):
         """Set remote session description.
 
@@ -205,10 +157,39 @@ class WebRTCClient:
         """
         self.webrtc.emit("add-ice-candidate", mline_index, candidate)
 
-    def get_stats(self):
-        """Get WebRTC statistics from GStreamer."""
-        promise = Gst.Promise.new_with_change_func(self.on_get_stats)
-        self.webrtc.emit("get-stats", None, promise)
+    def get_stats(self) -> str:
+        """Get RTP statistics from GStreamer.
+
+        :return: statistics as text report
+        :rtype: str
+        """
+        fields = [
+            "ssrc",
+            "is-sender",
+            "clock-rate",
+            "octets-sent",
+            "packets-sent",
+            "octets-received",
+            "packets-received",
+            "bitrate",
+            "packets-lost",
+            "jitter",
+            "recv-pli-count",
+            "recv-nack-count",
+            "recv-packet-rate",
+            "sr-ntptime",
+        ]
+        rtpbin = self.pipe.get_by_name("rtpsession0")
+        message = []
+        if rtpbin is None:
+            return ""
+
+        # Get statistics for each SSRC
+        stats = rtpbin.get_property("stats")
+        sources_stats = stats.get_value("source-stats")
+        for source_stats in sources_stats:
+            message.append({f: source_stats.get_value(f) for f in fields})
+        return pprint.pformat(message, sort_dicts=False)
 
     def start_pipeline(self, event_loop, ice_servers):
         """Start gstreamer pipeline and connect WebRTC events.
