@@ -50,13 +50,13 @@ class WebRTCClient:
         self.sdp_offer_callback = sdp_offer_callback
         self.ice_candidate_callback = ice_candidate_callback
 
-        # webrtcbin latency parameter was added in gstreamer 1.18
         self.pipeline_desc = (
-            "webrtcbin name=send bundle-policy=max-bundle latency=500 "
+            "webrtcbin name=send bundle-policy=max-bundle "
             f'uridecodebin uri="{input_uri}" name=bin '
             f"bin. ! vp8enc deadline=1 target-bitrate={bitrate} ! rtpvp8pay pt=97 "
-            '! rtprtxsend payload-type-map="application/x-rtp-pt-map,97=(uint)107" ! send. '
-            "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 ! send."
+            '! rtprtxsend payload-type-map="application/x-rtp-pt-map,97=(uint)107" max-size-packets=300 ! send. '
+            "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 "
+            '! rtprtxsend payload-type-map="application/x-rtp-pt-map,96=(uint)106" max-size-packets=300 ! send.'
         )
 
         # If gstreamer debug level is undefined, show warnings and errors
