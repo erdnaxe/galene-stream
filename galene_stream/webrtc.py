@@ -53,7 +53,7 @@ class WebRTCClient:
         self.pipeline_desc = (
             "webrtcbin name=send bundle-policy=max-bundle "
             f'uridecodebin uri="{input_uri}" name=bin '
-            f"bin. ! videoconvert ! vp8enc deadline=1 target-bitrate={bitrate} ! rtpvp8pay pt=97 ! send. "
+            f"bin. ! videoconvert ! vp8enc deadline=1 target-bitrate={bitrate} ! rtpvp8pay pt=97 ! rtprtxqueue ! send. "
             "bin. ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=96 ! send."
         )
 
