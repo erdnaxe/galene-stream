@@ -90,10 +90,7 @@ class GaleneClient:
             "source": self.client_id,
             "username": self.username,
             "sdp": sdp,
-            "labels": {
-                "video0": "video",
-                "audio1": "audio",
-            },
+            "label": "camera",
         }
         await self.send(msg)
 
