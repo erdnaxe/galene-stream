@@ -13,7 +13,7 @@ def start(opt: argparse.Namespace):
     """Init peer and start gateway
 
     By default, peer with a Galene server. If standalone option is enabled,
-    create a standalone web server.
+    create a standalone WebSocket server.
 
     :param opt: program options
     :type opt: argparse.Namespace

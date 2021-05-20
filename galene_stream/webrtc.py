@@ -30,25 +30,17 @@ class WebRTCClient:
     Based on <https://gitlab.freedesktop.org/gstreamer/gst-examples/>.
     """
 
-    def __init__(
-        self, input_uri: str, bitrate: int, sdp_offer_callback, ice_candidate_callback
-    ):
+    def __init__(self, input_uri: str, bitrate: int):
         """Init WebRTCClient.
 
         :param input_uri: URI for GStreamer uridecodebin
         :type input_uri: str
         :param bitrate: VP8 encoder bitrate in bit/s
         :type bitrate: int
-        :param sdp_offer_callback: coroutine to send SDP offer
-        :type sdp_offer_callback: coroutine
-        :param ice_candidate_callback: coroutine to send ICE candidate
-        :type ice_candidate_callback: coroutine
         """
         self.event_loop = None
         self.pipe = None
         self.webrtc = None
-        self.sdp_offer_callback = sdp_offer_callback
-        self.ice_candidate_callback = ice_candidate_callback
 
         self.pipeline_desc = (
             "webrtcbin name=send bundle-policy=max-bundle "

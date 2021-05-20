@@ -64,9 +64,11 @@ class GaleneClient:
         self.client_id = identifier
         self.conn = None
         self.ice_servers = None
-        self.webrtc = WebRTCClient(
-            input_uri, bitrate, self.send_sdp_offer, self.send_ice_candidate
-        )
+        self.webrtc = WebRTCClient(input_uri, bitrate)
+
+        # Set callbacks
+        self.webrtc.sdp_offer_callback = self.send_sdp_offer
+        self.webrtc.ice_candidate_callback = self.send_ice_candidate
 
     async def send(self, message: dict):
         """Send message to remote.
