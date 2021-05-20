@@ -19,9 +19,9 @@ def start(opt: argparse.Namespace):
     :type opt: argparse.Namespace
     """
     if opt.standalone:
-        pass
-        # from galene_stream.web_server import WebServer
-        # peer = WebServer(opt.input, opt.bitrate)
+        from galene_stream.standalone import StandaloneServer
+
+        peer = StandaloneServer(opt.input, opt.bitrate)
     else:
         from galene_stream.galene import GaleneClient
 
