@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 """
-Galène protocol support.
+Galène protocol support, to peer with Galène.
 """
 
+import asyncio
 import json
 import logging
 import secrets
@@ -162,17 +163,13 @@ class GaleneClient:
         self.webrtc.close_pipeline()
         await self.conn.close()
 
-    async def loop(self, event_loop):
+    async def loop(self):
         """Client loop
 
-        :param event_loop: asyncio event loop
-        :type event_loop: EventLoop
         :raises RuntimeError: if client is not connected
         """
         if self.conn is None:
             raise RuntimeError("client not connected")
-        self.webrtc.start_pipeline(event_loop, self.ice_servers)
-        log.info("Waiting for incoming stream...")
 
         async for message in self.conn:
             message = json.loads(message)
@@ -218,3 +215,18 @@ class GaleneClient:
             else:
                 # Oh no! We receive something not implemented
                 log.warn(f"Not implemented {message}")
+
+    def run(self):
+        """Init client and start event loop."""
+        event_loop = asyncio.get_event_loop()
+
+        # Connect to SFU server then start GStreamer pipeline
+        event_loop.run_until_complete(self.connect())
+        self.webrtc.start_pipeline(event_loop, self.ice_servers)
+
+        # Run main event loop
+        try:
+            event_loop.run_until_complete(self.loop())
+            event_loop.run_until_complete(self.close())
+        except KeyboardInterrupt:
+            event_loop.run_until_complete(self.close())

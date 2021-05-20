@@ -6,32 +6,30 @@ Main script for Galène stream gateway.
 """
 
 import argparse
-import asyncio
 import logging
-import sys
-
-from galene_stream.galene import GaleneClient
 
 
 def start(opt: argparse.Namespace):
-    """Init Galène client and start gateway
+    """Init peer and start gateway
+
+    By default, peer with a Galene server. If standalone option is enabled,
+    create a standalone web server.
 
     :param opt: program options
     :type opt: argparse.Namespace
     """
-    client = GaleneClient(
-        opt.input, opt.output, opt.bitrate, opt.group, opt.username, opt.password
-    )
+    if opt.standalone:
+        pass
+        # from galene_stream.web_server import WebServer
+        # peer = WebServer(opt.input, opt.bitrate)
+    else:
+        from galene_stream.galene import GaleneClient
 
-    # Connect and run main even loop
-    event_loop = asyncio.get_event_loop()
-    event_loop.run_until_complete(client.connect())
-    try:
-        event_loop.run_until_complete(client.loop(event_loop))
-        event_loop.run_until_complete(client.close())
-    except KeyboardInterrupt:
-        event_loop.run_until_complete(client.close())
-        sys.exit(1)
+        peer = GaleneClient(
+            opt.input, opt.output, opt.bitrate, opt.group, opt.username, opt.password
+        )
+
+    peer.run()
 
 
 def main():
@@ -84,6 +82,13 @@ def main():
         "-p",
         "--password",
         help="Group password",
+    )
+    parser.add_argument(
+        "-s",
+        "--standalone",
+        action="store_true",
+        default=False,
+        help="Standalone mode, create HTTP and WebSocket server",
     )
     options = parser.parse_args()
 

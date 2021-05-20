@@ -233,6 +233,7 @@ class WebRTCClient:
 
         # Start
         self.pipe.set_state(Gst.State.PLAYING)
+        log.info("Waiting for incoming stream...")
 
     def close_pipeline(self):
         """Stop gstreamer pipeline."""
