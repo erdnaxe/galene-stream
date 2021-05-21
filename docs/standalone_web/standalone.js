@@ -45,9 +45,14 @@ class GatewayClient {
     // ICE callbacks
     this.pc.oniceconnectionstatechange = () => console.log(this.pc.iceConnectionState)
     this.pc.onicecandidate = (event) => {
-      // By checking "null", we are sending candidates when they are all discovered.
-      // This effectively disable trickle ICE.
-      if (event.candidate === null) {
+      if (event.candidate !== null) {
+        // Send each candidate directly for trickle ICE
+        this.socket.send(JSON.stringify({
+          type: 'ice',
+          candidate: event.candidate,
+        }))
+      } else {
+        // Send full session description
         this.socket.send(JSON.stringify(this.pc.localDescription))
       }
     }
