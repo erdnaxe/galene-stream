@@ -41,23 +41,52 @@ class StandaloneServer:
         self.ice_servers = None
         self.webrtc = WebRTCClient(input_uri, bitrate)
 
-    async def websocket_handler(websocket, _):
+    async def websocket_handler(self, websocket, _):
         """WebSocket handler
 
         :param websocket: current WebSocket opened with client
         :type websocket: WebSocketServerProtocol
         """
+        # TODO: create client webrtcbin
+
+        async def send_sdp_offer(sdp):
+            """Send SDP offer to remote.
+
+            :param sdp: session description
+            :type sdp: str
+            """
+            log.debug(f"Sending local SDP offer to peer")
+            message = json.dumps({"type": "answer", "sdp": sdp})
+            await websocket.send(message)
+
+        async def send_ice_candidate(candidate: dict):
+            """Send ICE candidate to remote.
+
+            :param canditate: ICE candidate
+            :type canditate: dict
+            """
+            log.warn(f"Sending new ICE candidate to remote")
+            message = json.dumps({"type": "ice", "candidate": candidate})
+            await websocket.send(message)
+
+        # Set callbacks
+        # TODO: manage this per client with multiple WebRTC bins
+        # https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/issues/60
+        # https://gstreamer.freedesktop.org/documentation/coreelements/tee.html?gi-language=c
+        self.webrtc.sdp_offer_callback = send_sdp_offer
+        self.webrtc.ice_candidate_callback = send_ice_candidate
+
         async for message in websocket:
             # Wait for new message and decode as JSON
             message = json.loads(message)
 
             if message["type"] == "offer":
                 # Peer is sending a SDP offer
+                log.debug("Receiving SDP from peer")
                 sdp = message.get("sdp")
-                log.debug(f"Receiving SDP from peer: {sdp}")
                 self.webrtc.set_remote_sdp(sdp)
             elif message["type"] == "ice":
-                # Server is sending trickle ICE candidates
+                # Peer is sending trickle ICE candidates
                 log.debug("Receiving new ICE candidate from peer")
                 mline_index = message.get("candidate").get("sdpMLineIndex")
                 candidate = message.get("candidate").get("candidate")
@@ -71,6 +100,8 @@ class StandaloneServer:
             else:
                 # Oh no! We receive something not implemented
                 log.warn(f"Not implemented {message}")
+
+        # TODO: remove client webrtcbin
 
     def run(self):
         """Init WebSocket server and start event loop."""

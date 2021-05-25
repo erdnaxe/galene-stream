@@ -3,7 +3,7 @@
 class GatewayClient {
   constructor() {
     this.socket = null
-    this.pc = null  // WebRTC peer connection
+    this.pc = null // WebRTC peer connection
   }
 
   /**
@@ -75,16 +75,23 @@ class GatewayClient {
     const data = JSON.parse(event.data)
 
     switch (data.type) {
-    case 'stats':
-      console.log(data.value)
-      break
-    case 'answer':
-      try {
-        client.pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
-      } catch (e) {
-        console.error(e)
-      }
-      break
+      case 'stats':
+        console.log(data.value)
+        break
+      case 'answer':
+        try {
+          client.pc.setRemoteDescription(new RTCSessionDescription(data))
+        } catch (e) {
+          console.error(e)
+        }
+        break
+      case 'ice':
+        try {
+          client.pc.addIceCandidate(new RTCIceCandidate(data.candidate))
+        } catch (e) {
+          console.error(e)
+        }
+        break
     }
   }
 
