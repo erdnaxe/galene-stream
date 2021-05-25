@@ -2,4 +2,4 @@
 recursive-include docs *.png *.conf *.html *.js Vagrantfile*
 
 # Include metadata files
-include .gitlab-ci.yml CONTRIBUTING.md
+include .gitlab-ci.yml .eslintrc.json CONTRIBUTING.md
