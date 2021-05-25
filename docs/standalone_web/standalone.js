@@ -58,12 +58,8 @@ class GatewayClient {
     }
 
     // Create new offer to receive one audio and video track
-    // After offer creation, candidates will be send
     this.pc.addTransceiver('audio', { 'direction': 'recvonly' })
     this.pc.addTransceiver('video', { 'direction': 'recvonly' })
-    this.pc.createOffer().then((d) => {
-      this.pc.setLocalDescription(d)
-    }).catch(console.log)
   }
 
   /**
@@ -78,9 +74,12 @@ class GatewayClient {
       case 'stats':
         console.log(data.value)
         break
-      case 'answer':
+      case 'offer':
         try {
           client.pc.setRemoteDescription(new RTCSessionDescription(data))
+          this.pc.createAnswer().then((d) => {
+            this.pc.setLocalDescription(d)
+          }).catch(console.log)
         } catch (e) {
           console.error(e)
         }

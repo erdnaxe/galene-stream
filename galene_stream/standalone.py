@@ -41,6 +41,31 @@ class StandaloneServer:
         self.ice_servers = None
         self.webrtc = WebRTCClient(input_uri, bitrate)
 
+        # Set callbacks
+        # TODO: manage this per client with multiple WebRTC bins
+        # https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/issues/60
+        # https://gstreamer.freedesktop.org/documentation/coreelements/tee.html?gi-language=c
+        self.webrtc.sdp_offer_callback = self.send_sdp_offer
+        self.webrtc.ice_candidate_callback = self.send_ice_candidate
+        self.offer = None
+        self.candidates = []
+
+    async def send_sdp_offer(self, sdp):
+        """Send SDP offer to remote.
+
+        :param sdp: session description
+        :type sdp: str
+        """
+        self.sdp_offer = sdp
+
+    async def send_ice_candidate(self, candidate: dict):
+        """Send ICE candidate to remote.
+
+        :param canditate: ICE candidate
+        :type canditate: dict
+        """
+        self.candidates.append(candidate)
+
     async def websocket_handler(self, websocket, _):
         """WebSocket handler
 
@@ -49,39 +74,21 @@ class StandaloneServer:
         """
         # TODO: create client webrtcbin
 
-        async def send_sdp_offer(sdp):
-            """Send SDP offer to remote.
+        log.debug(f"Sending local SDP offer to peer")
+        message = json.dumps({"type": "offer", "sdp": self.sdp_offer})
+        await websocket.send(message)
 
-            :param sdp: session description
-            :type sdp: str
-            """
-            log.debug(f"Sending local SDP offer to peer")
-            message = json.dumps({"type": "answer", "sdp": sdp})
-            await websocket.send(message)
-
-        async def send_ice_candidate(candidate: dict):
-            """Send ICE candidate to remote.
-
-            :param canditate: ICE candidate
-            :type canditate: dict
-            """
-            log.warn(f"Sending new ICE candidate to remote")
+        for candidate in self.candidates:
+            log.debug(f"Sending new ICE candidate to remote")
             message = json.dumps({"type": "ice", "candidate": candidate})
             await websocket.send(message)
-
-        # Set callbacks
-        # TODO: manage this per client with multiple WebRTC bins
-        # https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/issues/60
-        # https://gstreamer.freedesktop.org/documentation/coreelements/tee.html?gi-language=c
-        self.webrtc.sdp_offer_callback = send_sdp_offer
-        self.webrtc.ice_candidate_callback = send_ice_candidate
 
         async for message in websocket:
             # Wait for new message and decode as JSON
             message = json.loads(message)
 
-            if message["type"] == "offer":
-                # Peer is sending a SDP offer
+            if message["type"] == "answer":
+                # Peer is answering a SDP offer
                 log.debug("Receiving SDP from peer")
                 sdp = message.get("sdp")
                 self.webrtc.set_remote_sdp(sdp)
