@@ -8,7 +8,6 @@ Galène protocol support.
 import json
 import logging
 import secrets
-import ssl
 
 import websockets
 
@@ -124,8 +123,7 @@ class GaleneClient:
         """Connect to server."""
         # Create WebSocket
         log.info("Connecting to WebSocket")
-        ssl_ctx = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
-        self.conn = await websockets.connect(self.server, ssl=ssl_ctx)
+        self.conn = await websockets.connect(self.server, ssl=True)
 
         # Handshake with server
         log.info("Handshaking")
