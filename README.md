@@ -118,7 +118,7 @@ galene-stream --input "srt://localhost:9710?mode=listener" --output "wss://galen
 
 Then you can stream to `srt://localhost:9710` with no stream key.
 
-More information on [OBS Wiki, Streaming With SRT Protocol](https://obsproject.com/wiki/Streaming-With-SRT-Protocol).
+More information on [OBS Wiki, Streaming With SRT Or RIST Protocols](https://obsproject.com/wiki/Streaming-With-SRT-Or-RIST-Protocols).
 
 ### Configuration for file streaming
 
