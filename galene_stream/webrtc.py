@@ -10,6 +10,7 @@ import logging
 import os
 import pprint
 import sys
+from typing import List
 
 import gi
 
@@ -31,7 +32,7 @@ class WebRTCClient:
 
     def __init__(
         self, input_uri: str, bitrate: int, sdp_offer_callback, ice_candidate_callback
-    ):
+    ) -> None:
         """Init WebRTCClient.
 
         :param input_uri: URI for GStreamer uridecodebin
@@ -74,17 +75,20 @@ class WebRTCClient:
             "x264",
         ]
         missing = filter(lambda p: Gst.Registry.get().find_plugin(p) is None, needed)
-        missing = list(missing)
-        if len(missing):
-            log.error(f"Missing gstreamer plugins: {missing}")
+        missing_list = list(missing)
+        if len(missing_list):
+            log.error(f"Missing gstreamer plugins: {missing_list}")
             sys.exit(1)
 
-    def on_offer_created(self, promise, _, __):
+    def on_offer_created(self, promise, _, __) -> None:
         """``on-offer-created`` event handler.
 
         :param promise: promise running this event
         :type promise: Gst.Promise
         """
+        assert self.event_loop is not None
+        assert self.webrtc is not None
+
         # Get offer from the promise calling the event
         promise.wait()
         reply = promise.get_reply()
@@ -103,7 +107,7 @@ class WebRTCClient:
         )
         future.result()  # wait
 
-    def on_negotiation_needed(self, element):
+    def on_negotiation_needed(self, element) -> None:
         """``on-negotiation-needed`` event handler.
 
         When receiving ``on-negotiation-needed`` event, create new offer.
@@ -117,7 +121,7 @@ class WebRTCClient:
         # Create new offer
         element.emit("create-offer", None, promise)
 
-    def on_ice_candidate(self, _, mline_index, candidate: str):
+    def on_ice_candidate(self, _, mline_index, candidate: str) -> None:
         """``on-ice-candidate`` event handler.
 
         Send ICE candidate message to remote.
@@ -127,18 +131,22 @@ class WebRTCClient:
         :param candidate: an ICE candidate
         :type candidate: str
         """
-        candidate = {"candidate": candidate, "sdpMLineIndex": mline_index}
+        assert self.event_loop is not None
+
+        c = {"candidate": candidate, "sdpMLineIndex": mline_index}
         future = asyncio.run_coroutine_threadsafe(
-            self.ice_candidate_callback(candidate), self.event_loop
+            self.ice_candidate_callback(c), self.event_loop
         )
         future.result()  # wait
 
-    def set_remote_sdp(self, sdp: str):
+    def set_remote_sdp(self, sdp: str) -> None:
         """Set remote session description.
 
         :param sdp: Session description
         :type sdp: str
         """
+        assert self.webrtc is not None
+
         log.info("Setting remote session description")
         _, sdp_msg = GstSdp.SDPMessage.new()
         GstSdp.sdp_message_parse_buffer(bytes(sdp.encode()), sdp_msg)
@@ -149,7 +157,7 @@ class WebRTCClient:
         self.webrtc.emit("set-remote-description", answer, promise)
         promise.interrupt()
 
-    def add_ice_candidate(self, mline_index: int, candidate: str):
+    def add_ice_candidate(self, mline_index: int, candidate: str) -> None:
         """Add new ICE candidate.
 
         :param mline_index: the index of the media description in the SDP
@@ -157,6 +165,7 @@ class WebRTCClient:
         :param candidate: an ice candidate
         :type candidate: str
         """
+        assert self.webrtc is not None
         self.webrtc.emit("add-ice-candidate", mline_index, candidate)
 
     def get_stats(self) -> str:
@@ -165,6 +174,7 @@ class WebRTCClient:
         :return: statistics as text report
         :rtype: str
         """
+        assert self.pipe is not None
         fields = [
             "ssrc",
             "is-sender",
@@ -192,13 +202,15 @@ class WebRTCClient:
                 message.append({f: source_stats.get_value(f) for f in fields})
         return pprint.pformat(message, sort_dicts=False)
 
-    def start_pipeline(self, event_loop, ice_servers):
+    def start_pipeline(
+        self, event_loop: asyncio.AbstractEventLoop, ice_servers: List[str]
+    ) -> None:
         """Start gstreamer pipeline and connect WebRTC events.
 
         :param event_loop: asyncio event loop
         :type event_loop: EventLoop
         :param ice_servers: list of ICE TURN servers
-        :type ice_servers: list of dicts
+        :type ice_servers: list of str
         """
         log.info("Starting pipeline")
         self.event_loop = event_loop
@@ -217,13 +229,8 @@ class WebRTCClient:
 
         # Add TURN servers
         try:
-            for server in ice_servers:
-                username = server.get("username", "")
-                credential = server.get("credential", "")
-                for url in server.get("urls", []):
-                    url = url.replace("turn:", "")  # remove prefix
-                    uri = f"turn://{username}:{credential}@{url}"
-                    self.webrtc.emit("add-turn-server", uri)
+            for uri in ice_servers:
+                self.webrtc.emit("add-turn-server", uri)
         except TypeError:
             log.warn(
                 "add-turn-server signal is missing, maybe your gstreamer "
@@ -233,7 +240,7 @@ class WebRTCClient:
         # Start
         self.pipe.set_state(Gst.State.PLAYING)
 
-    def close_pipeline(self):
+    def close_pipeline(self) -> None:
         """Stop gstreamer pipeline."""
         log.info("Closing pipeline")
 

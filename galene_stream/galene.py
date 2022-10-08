@@ -8,6 +8,7 @@ Galène protocol support.
 import json
 import logging
 import secrets
+from typing import List
 
 import websockets
 
@@ -26,10 +27,8 @@ class GaleneClient:
         bitrate: int,
         group: str,
         username: str,
-        password=None,
-        identifier=None,
-        ice_servers=[],
-    ):
+        password: str = "",
+    ) -> None:
         """Create GaleneClient
 
         :param input_uri: URI for GStreamer uridecodebin
@@ -44,38 +43,32 @@ class GaleneClient:
         :type username: str
         :param password: group user password if required
         :type password: str, optional
-        :param identifier: client id, defaults to random
-        :type identifier: str, optional
-        :param ice_servers: TURN/STUN servers to use, default to those announced
-            by the server
-        :type ice_servers: [str]
         """
-        super().__init__()
-        if identifier is None:
-            # Create random client id
-            identifier = secrets.token_bytes(16).hex()
-
         self.server = server
         self.group = group
         self.username = username
         self.password = password
-        self.client_id = identifier
+
         self.conn = None
-        self.ice_servers = None
+        self.ice_servers: List[str] = []
+        self.client_id = secrets.token_bytes(16).hex()
         self.webrtc = WebRTCClient(
             input_uri, bitrate, self.send_sdp_offer, self.send_ice_candidate
         )
 
-    async def send(self, message: dict):
+    async def send(self, message: dict) -> None:
         """Send message to remote.
 
         :param message: message to send
         :type message: dict
         """
-        message = json.dumps(message)
-        await self.conn.send(message)
+        msg = json.dumps(message)
+        if self.conn is None:
+            log.error("Connection is closed, cannot send message")
+            return
+        await self.conn.send(msg)
 
-    async def send_sdp_offer(self, sdp):
+    async def send_sdp_offer(self, sdp: str) -> None:
         """Send SDP offer to remote.
 
         :param sdp: session description
@@ -93,7 +86,7 @@ class GaleneClient:
         }
         await self.send(msg)
 
-    async def send_ice_candidate(self, candidate: dict):
+    async def send_ice_candidate(self, candidate: dict) -> None:
         """Send ICE candidate to remote.
 
         :param canditate: ICE candidate
@@ -103,7 +96,7 @@ class GaleneClient:
         msg = {"type": "ice", "id": self.client_id, "candidate": candidate}
         await self.send(msg)
 
-    async def send_chat(self, message):
+    async def send_chat(self, message: str) -> None:
         """Send chat message.
 
         :param message: content of the message
@@ -119,7 +112,7 @@ class GaleneClient:
             }
         )
 
-    async def connect(self):
+    async def connect(self) -> None:
         """Connect to server."""
         # Create WebSocket
         log.info("Connecting to WebSocket")
@@ -129,6 +122,7 @@ class GaleneClient:
         log.info("Handshaking")
         msg = {
             "type": "handshake",
+            "version": ["1"],  # since Galene 0.6.0
             "id": self.client_id,
         }
         await self.send(msg)
@@ -147,20 +141,34 @@ class GaleneClient:
         response = {"type": "none"}
         while response["type"] != "joined":
             # The server will send 'user' messages that we ignore
-            response = await self.conn.recv()
-            response = json.loads(response)
+            raw_response = await self.conn.recv()
+            response = json.loads(raw_response)
         if response["kind"] != "join":
             raise RuntimeError("failed to join room")
-        if self.ice_servers is None:
-            self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
 
-    async def close(self):
+        # Get ICE servers
+        rtc_configuration = response.get("rtcConfiguration", {})
+        assert isinstance(rtc_configuration, dict)
+        self.ice_servers = []
+        for server in rtc_configuration.get("iceServers", []):
+            username = server.get("username", "")
+            credential = server.get("credential", "")
+            for url in server.get("urls", []):
+                url = url.replace("turn:", "")  # remove prefix
+                uri = f"turn://{username}:{credential}@{url}"
+                self.ice_servers.append(uri)
+
+    async def close(self) -> None:
         """Close connection."""
         log.info("Closing WebSocket connection")
         self.webrtc.close_pipeline()
+        if self.conn is None:
+            log.warn("Connection is already closed")
+            return
         await self.conn.close()
+        self.conn = None
 
-    async def loop(self, event_loop):
+    async def loop(self, event_loop) -> None:
         """Client loop
 
         :param event_loop: asyncio event loop
@@ -208,11 +216,13 @@ class GaleneClient:
             elif message["type"] == "close":
                 continue  # ignore close events
             elif message["type"] == "chat":
-                # User might request statistics
+                # User might request statistics using `!webrtc` chat command
                 if message.get("value") == "!webrtc":
                     m = self.webrtc.get_stats()
                     if m:
                         await self.send_chat(m)
+            elif message["type"] == "chathistory":
+                continue  # ignore chat history events
             else:
                 # Oh no! We receive something not implemented
                 log.warn(f"Not implemented {message}")
