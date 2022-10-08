@@ -26,9 +26,8 @@ class GaleneClient:
         bitrate: int,
         group: str,
         username: str,
-        password=None,
-        identifier=None,
-    ):
+        password: str = "",
+    ) -> None:
         """Create GaleneClient
 
         :param input_uri: URI for GStreamer uridecodebin
@@ -43,21 +42,15 @@ class GaleneClient:
         :type username: str
         :param password: group user password if required
         :type password: str, optional
-        :param identifier: client id, defaults to random
-        :type identifier: str, optional
         """
-        super().__init__()
-        if identifier is None:
-            # Create random client id
-            identifier = secrets.token_bytes(16).hex()
-
         self.server = server
         self.group = group
         self.username = username
         self.password = password
-        self.client_id = identifier
+
         self.conn = None
         self.ice_servers = []
+        self.client_id = secrets.token_bytes(16).hex()
         self.webrtc = WebRTCClient(
             input_uri, bitrate, self.send_sdp_offer, self.send_ice_candidate
         )
