@@ -216,11 +216,13 @@ class GaleneClient:
             elif message["type"] == "close":
                 continue  # ignore close events
             elif message["type"] == "chat":
-                # User might request statistics
+                # User might request statistics using `!webrtc` chat command
                 if message.get("value") == "!webrtc":
                     m = self.webrtc.get_stats()
                     if m:
                         await self.send_chat(m)
+            elif message["type"] == "chathistory":
+                continue  # ignore chat history events
             else:
                 # Oh no! We receive something not implemented
                 log.warn(f"Not implemented {message}")
