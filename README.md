@@ -41,10 +41,10 @@ or install it using pip.
 Launch the gateway using:
 
 ```
-galene-stream --input "udp://localhost:8888" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "udp://127.0.0.1:8888" --output "wss://galene.example.com/ws" --group test --username bot
 ```
 
-Then you can stream to `udp://localhost:8888` with no stream key.
+Then you can stream to `udp://127.0.0.1:8888` with no stream key.
 
 ### Configuration for RTMP streaming
 
@@ -65,7 +65,7 @@ nginx -c nginx.conf -p $PWD
 You may launch the gateway after the NGINX server using:
 
 ```
-galene-stream --input "rtmp://localhost:1935/live/test" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "rtmp://127.0.0.1:1935/live/test" --output "wss://galene.example.com/ws" --group test --username bot
 ```
 
 Then you can stream to `rtmp://127.0.0.1:1935/live` with stream key `test`.
@@ -82,10 +82,10 @@ On Windows and MacOS, OBS comes with his own FFMpeg that will work.
 Launch the gateway using:
 
 ```
-galene-stream --input "srt://localhost:9710?mode=listener" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "srt://127.0.0.1:9710?mode=listener" --output "wss://galene.example.com/ws" --group test --username bot
 ```
 
-Then you can stream to `srt://localhost:9710` with no stream key.
+Then you can stream to `srt://127.0.0.1:9710` with no stream key.
 
 More information on [OBS Wiki, Streaming With SRT Or RIST Protocols](https://obsproject.com/wiki/Streaming-With-SRT-Or-RIST-Protocols).
 
