@@ -49,7 +49,7 @@ class GaleneClient:
         self.password = password
 
         self.conn = None
-        self.ice_servers = []
+        self.ice_servers: list[str] = []
         self.client_id = secrets.token_bytes(16).hex()
         self.webrtc = WebRTCClient(
             input_uri, bitrate, self.send_sdp_offer, self.send_ice_candidate
@@ -143,7 +143,18 @@ class GaleneClient:
             response = json.loads(raw_response)
         if response["kind"] != "join":
             raise RuntimeError("failed to join room")
-        self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
+
+        # Get ICE servers
+        rtc_configuration = response.get("rtcConfiguration", {})
+        assert isinstance(rtc_configuration, dict)
+        self.ice_servers = []
+        for server in rtc_configuration.get("iceServers", []):
+            username = server.get("username", "")
+            credential = server.get("credential", "")
+            for url in server.get("urls", []):
+                url = url.replace("turn:", "")  # remove prefix
+                uri = f"turn://{username}:{credential}@{url}"
+                self.ice_servers.append(uri)
 
     async def close(self) -> None:
         """Close connection."""

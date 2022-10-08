@@ -201,13 +201,15 @@ class WebRTCClient:
                 message.append({f: source_stats.get_value(f) for f in fields})
         return pprint.pformat(message, sort_dicts=False)
 
-    def start_pipeline(self, event_loop, ice_servers: list) -> None:
+    def start_pipeline(
+        self, event_loop: asyncio.AbstractEventLoop, ice_servers: list[str]
+    ) -> None:
         """Start gstreamer pipeline and connect WebRTC events.
 
         :param event_loop: asyncio event loop
         :type event_loop: EventLoop
         :param ice_servers: list of ICE TURN servers
-        :type ice_servers: list of dicts
+        :type ice_servers: list of str
         """
         log.info("Starting pipeline")
         self.event_loop = event_loop
@@ -226,13 +228,8 @@ class WebRTCClient:
 
         # Add TURN servers
         try:
-            for server in ice_servers:
-                username = server.get("username", "")
-                credential = server.get("credential", "")
-                for url in server.get("urls", []):
-                    url = url.replace("turn:", "")  # remove prefix
-                    uri = f"turn://{username}:{credential}@{url}"
-                    self.webrtc.emit("add-turn-server", uri)
+            for uri in ice_servers:
+                self.webrtc.emit("add-turn-server", uri)
         except TypeError:
             log.warn(
                 "add-turn-server signal is missing, maybe your gstreamer "
