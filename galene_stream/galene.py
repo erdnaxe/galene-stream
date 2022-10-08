@@ -62,6 +62,9 @@ class GaleneClient:
         :type message: dict
         """
         msg = json.dumps(message)
+        if self.conn is None:
+            log.error("Connection is closed, cannot send message")
+            return
         await self.conn.send(msg)
 
     async def send_sdp_offer(self, sdp: str) -> None:
@@ -136,8 +139,8 @@ class GaleneClient:
         response = {"type": "none"}
         while response["type"] != "joined":
             # The server will send 'user' messages that we ignore
-            response = await self.conn.recv()
-            response = json.loads(response)
+            raw_response = await self.conn.recv()
+            response = json.loads(raw_response)
         if response["kind"] != "join":
             raise RuntimeError("failed to join room")
         self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
@@ -146,7 +149,11 @@ class GaleneClient:
         """Close connection."""
         log.info("Closing WebSocket connection")
         self.webrtc.close_pipeline()
+        if self.conn is None:
+            log.warn("Connection is already closed")
+            return
         await self.conn.close()
+        self.conn = None
 
     async def loop(self, event_loop) -> None:
         """Client loop

@@ -85,6 +85,9 @@ class WebRTCClient:
         :param promise: promise running this event
         :type promise: Gst.Promise
         """
+        assert self.event_loop is not None
+        assert self.webrtc is not None
+
         # Get offer from the promise calling the event
         promise.wait()
         reply = promise.get_reply()
@@ -127,9 +130,11 @@ class WebRTCClient:
         :param candidate: an ICE candidate
         :type candidate: str
         """
-        candidate = {"candidate": candidate, "sdpMLineIndex": mline_index}
+        assert self.event_loop is not None
+
+        c = {"candidate": candidate, "sdpMLineIndex": mline_index}
         future = asyncio.run_coroutine_threadsafe(
-            self.ice_candidate_callback(candidate), self.event_loop
+            self.ice_candidate_callback(c), self.event_loop
         )
         future.result()  # wait
 
@@ -139,6 +144,8 @@ class WebRTCClient:
         :param sdp: Session description
         :type sdp: str
         """
+        assert self.webrtc is not None
+
         log.info("Setting remote session description")
         _, sdp_msg = GstSdp.SDPMessage.new()
         GstSdp.sdp_message_parse_buffer(bytes(sdp.encode()), sdp_msg)
@@ -157,6 +164,7 @@ class WebRTCClient:
         :param candidate: an ice candidate
         :type candidate: str
         """
+        assert self.webrtc is not None
         self.webrtc.emit("add-ice-candidate", mline_index, candidate)
 
     def get_stats(self) -> str:
@@ -165,6 +173,7 @@ class WebRTCClient:
         :return: statistics as text report
         :rtype: str
         """
+        assert self.pipe is not None
         fields = [
             "ssrc",
             "is-sender",
