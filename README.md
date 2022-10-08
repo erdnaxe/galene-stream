@@ -4,8 +4,6 @@ Gateway to send streams such as RTMP or SRT to
 [Galène videoconference server](https://galene.org/).
 It is based on Gstreamer and implements the Galène protocol.
 
-Tested on Debian Bullseye, Ubuntu 20.04, Ubuntu 20.10, ArchLinux and NixOS 20.09.
-
 **This project is still not production ready, and you might experience
 jittering and crashes.**
 
@@ -16,6 +14,8 @@ jittering and crashes.**
 Real-time video conversion requires resources. If many users are going to use
 this gateway simultaneously, you should scale your machine resources
 accordingly.
+
+Installation works on Ubuntu 20.10 and Debian Bullseye or any later version.
 
 For Windows users, we recommend to use
 [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install).
