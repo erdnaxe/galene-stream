@@ -72,8 +72,8 @@ class GaleneClient:
         :param message: message to send
         :type message: dict
         """
-        message = json.dumps(message)
-        await self.conn.send(message)
+        msg = json.dumps(message)
+        await self.conn.send(msg)
 
     async def send_sdp_offer(self, sdp):
         """Send SDP offer to remote.
