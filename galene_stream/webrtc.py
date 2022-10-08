@@ -10,6 +10,7 @@ import logging
 import os
 import pprint
 import sys
+from typing import List
 
 import gi
 
@@ -202,7 +203,7 @@ class WebRTCClient:
         return pprint.pformat(message, sort_dicts=False)
 
     def start_pipeline(
-        self, event_loop: asyncio.AbstractEventLoop, ice_servers: list[str]
+        self, event_loop: asyncio.AbstractEventLoop, ice_servers: List[str]
     ) -> None:
         """Start gstreamer pipeline and connect WebRTC events.
 

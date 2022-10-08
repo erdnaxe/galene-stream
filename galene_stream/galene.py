@@ -8,6 +8,7 @@ Galène protocol support.
 import json
 import logging
 import secrets
+from typing import List
 
 import websockets
 
@@ -49,7 +50,7 @@ class GaleneClient:
         self.password = password
 
         self.conn = None
-        self.ice_servers: list[str] = []
+        self.ice_servers: List[str] = []
         self.client_id = secrets.token_bytes(16).hex()
         self.webrtc = WebRTCClient(
             input_uri, bitrate, self.send_sdp_offer, self.send_ice_candidate
