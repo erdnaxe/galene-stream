@@ -28,7 +28,6 @@ class GaleneClient:
         username: str,
         password=None,
         identifier=None,
-        ice_servers=[],
     ):
         """Create GaleneClient
 
@@ -46,9 +45,6 @@ class GaleneClient:
         :type password: str, optional
         :param identifier: client id, defaults to random
         :type identifier: str, optional
-        :param ice_servers: TURN/STUN servers to use, default to those announced
-            by the server
-        :type ice_servers: [str]
         """
         super().__init__()
         if identifier is None:
@@ -61,7 +57,7 @@ class GaleneClient:
         self.password = password
         self.client_id = identifier
         self.conn = None
-        self.ice_servers = None
+        self.ice_servers = []
         self.webrtc = WebRTCClient(
             input_uri, bitrate, self.send_sdp_offer, self.send_ice_candidate
         )
@@ -151,8 +147,7 @@ class GaleneClient:
             response = json.loads(response)
         if response["kind"] != "join":
             raise RuntimeError("failed to join room")
-        if self.ice_servers is None:
-            self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
+        self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
 
     async def close(self):
         """Close connection."""
