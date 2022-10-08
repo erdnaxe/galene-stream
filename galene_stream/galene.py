@@ -55,7 +55,7 @@ class GaleneClient:
             input_uri, bitrate, self.send_sdp_offer, self.send_ice_candidate
         )
 
-    async def send(self, message: dict):
+    async def send(self, message: dict) -> None:
         """Send message to remote.
 
         :param message: message to send
@@ -64,7 +64,7 @@ class GaleneClient:
         msg = json.dumps(message)
         await self.conn.send(msg)
 
-    async def send_sdp_offer(self, sdp):
+    async def send_sdp_offer(self, sdp: str) -> None:
         """Send SDP offer to remote.
 
         :param sdp: session description
@@ -82,7 +82,7 @@ class GaleneClient:
         }
         await self.send(msg)
 
-    async def send_ice_candidate(self, candidate: dict):
+    async def send_ice_candidate(self, candidate: dict) -> None:
         """Send ICE candidate to remote.
 
         :param canditate: ICE candidate
@@ -92,7 +92,7 @@ class GaleneClient:
         msg = {"type": "ice", "id": self.client_id, "candidate": candidate}
         await self.send(msg)
 
-    async def send_chat(self, message):
+    async def send_chat(self, message: str) -> None:
         """Send chat message.
 
         :param message: content of the message
@@ -108,7 +108,7 @@ class GaleneClient:
             }
         )
 
-    async def connect(self):
+    async def connect(self) -> None:
         """Connect to server."""
         # Create WebSocket
         log.info("Connecting to WebSocket")
@@ -142,13 +142,13 @@ class GaleneClient:
             raise RuntimeError("failed to join room")
         self.ice_servers = response.get("rtcConfiguration").get("iceServers", [])
 
-    async def close(self):
+    async def close(self) -> None:
         """Close connection."""
         log.info("Closing WebSocket connection")
         self.webrtc.close_pipeline()
         await self.conn.close()
 
-    async def loop(self, event_loop):
+    async def loop(self, event_loop) -> None:
         """Client loop
 
         :param event_loop: asyncio event loop

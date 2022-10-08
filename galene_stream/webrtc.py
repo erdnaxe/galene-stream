@@ -31,7 +31,7 @@ class WebRTCClient:
 
     def __init__(
         self, input_uri: str, bitrate: int, sdp_offer_callback, ice_candidate_callback
-    ):
+    ) -> None:
         """Init WebRTCClient.
 
         :param input_uri: URI for GStreamer uridecodebin
@@ -74,12 +74,12 @@ class WebRTCClient:
             "x264",
         ]
         missing = filter(lambda p: Gst.Registry.get().find_plugin(p) is None, needed)
-        missing = list(missing)
-        if len(missing):
-            log.error(f"Missing gstreamer plugins: {missing}")
+        missing_list = list(missing)
+        if len(missing_list):
+            log.error(f"Missing gstreamer plugins: {missing_list}")
             sys.exit(1)
 
-    def on_offer_created(self, promise, _, __):
+    def on_offer_created(self, promise, _, __) -> None:
         """``on-offer-created`` event handler.
 
         :param promise: promise running this event
@@ -103,7 +103,7 @@ class WebRTCClient:
         )
         future.result()  # wait
 
-    def on_negotiation_needed(self, element):
+    def on_negotiation_needed(self, element) -> None:
         """``on-negotiation-needed`` event handler.
 
         When receiving ``on-negotiation-needed`` event, create new offer.
@@ -117,7 +117,7 @@ class WebRTCClient:
         # Create new offer
         element.emit("create-offer", None, promise)
 
-    def on_ice_candidate(self, _, mline_index, candidate: str):
+    def on_ice_candidate(self, _, mline_index, candidate: str) -> None:
         """``on-ice-candidate`` event handler.
 
         Send ICE candidate message to remote.
@@ -133,7 +133,7 @@ class WebRTCClient:
         )
         future.result()  # wait
 
-    def set_remote_sdp(self, sdp: str):
+    def set_remote_sdp(self, sdp: str) -> None:
         """Set remote session description.
 
         :param sdp: Session description
@@ -149,7 +149,7 @@ class WebRTCClient:
         self.webrtc.emit("set-remote-description", answer, promise)
         promise.interrupt()
 
-    def add_ice_candidate(self, mline_index: int, candidate: str):
+    def add_ice_candidate(self, mline_index: int, candidate: str) -> None:
         """Add new ICE candidate.
 
         :param mline_index: the index of the media description in the SDP
@@ -192,7 +192,7 @@ class WebRTCClient:
                 message.append({f: source_stats.get_value(f) for f in fields})
         return pprint.pformat(message, sort_dicts=False)
 
-    def start_pipeline(self, event_loop, ice_servers):
+    def start_pipeline(self, event_loop, ice_servers: list) -> None:
         """Start gstreamer pipeline and connect WebRTC events.
 
         :param event_loop: asyncio event loop
@@ -233,7 +233,7 @@ class WebRTCClient:
         # Start
         self.pipe.set_state(Gst.State.PLAYING)
 
-    def close_pipeline(self):
+    def close_pipeline(self) -> None:
         """Stop gstreamer pipeline."""
         log.info("Closing pipeline")
 
