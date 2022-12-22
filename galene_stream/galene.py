@@ -122,7 +122,7 @@ class GaleneClient:
         log.info("Handshaking")
         msg = {
             "type": "handshake",
-            "version": ["1"],  # since Galene 0.6.0
+            "version": ["2", "1"],
             "id": self.client_id,
         }
         await self.send(msg)
