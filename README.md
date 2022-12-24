@@ -5,7 +5,7 @@ Gateway to send streams such as RTMP or SRT to
 It is based on Gstreamer and implements the Galène protocol.
 
 > :warning: **This project is not production ready, and you might experience
-> jittering and crashes.**
+> jittering and crashes.** [See future plans.](#future-plans)
 
 ![Streaming from OBS to Galène, video background from KaMy Video Stock](./docs/demo.png)
 
@@ -132,7 +132,7 @@ Then you can use GraphViz to generate an image from the dot file:
 ## Future plans
 
 The WISH IETF workgroup is working on the [WebRTC-HTTP ingestion protocol (WHIP)](https://datatracker.ietf.org/doc/draft-ietf-wish-whip/).
-Galène has [an experimental branch `whip`](https://github.com/jech/galene/tree/whip) implementing a WISH server.
+Galène has [an experimental branch `whip`](https://github.com/jech/galene/tree/whip) implementing a WHIP server.
 OBS Studio is currently working (as of December 2022) on [adding WHIP output support](https://github.com/obsproject/obs-studio/pull/7926).
 
 Using WHIP directly removes the need for a transcoding gateway, and make
