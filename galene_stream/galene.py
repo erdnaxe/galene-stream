@@ -8,6 +8,7 @@ Galène protocol support.
 import json
 import logging
 import secrets
+import ssl
 from typing import List
 
 import websockets
@@ -28,6 +29,7 @@ class GaleneClient:
         group: str,
         username: str,
         password: str = "",
+        insecure: bool = False,
     ) -> None:
         """Create GaleneClient
 
@@ -43,11 +45,13 @@ class GaleneClient:
         :type username: str
         :param password: group user password if required
         :type password: str, optional
+        :type insecure: bool, optional
         """
         self.server = server
         self.group = group
         self.username = username
         self.password = password
+        self.insecure = insecure
 
         self.conn = None
         self.ice_servers: List[str] = []
@@ -116,7 +120,13 @@ class GaleneClient:
         """Connect to server."""
         # Create WebSocket
         log.info("Connecting to WebSocket")
-        self.conn = await websockets.connect(self.server, ssl=True)
+        if self.insecure:
+            ssl_context = ssl.SSLContext()
+            ssl_context.verify_mode = ssl.CERT_NONE
+            ssl_context.check_hostname = False
+        else:
+            ssl_context = ssl.create_default_context()
+        self.conn = await websockets.connect(self.server, ssl=ssl_context)
 
         # Handshake with server
         log.info("Handshaking")

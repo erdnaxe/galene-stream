@@ -20,7 +20,8 @@ def start(opt: argparse.Namespace):
     :type opt: argparse.Namespace
     """
     client = GaleneClient(
-        opt.input, opt.output, opt.bitrate, opt.group, opt.username, opt.password
+        opt.input, opt.output, opt.bitrate, opt.group,
+        opt.username, opt.password, opt.insecure,
     )
 
     # Connect and run main even loop
@@ -84,6 +85,11 @@ def main():
         "-p",
         "--password",
         help="Group password",
+    )
+    parser.add_argument(
+        "--insecure",
+        action="store_true",
+        help="Don't check server certificate",
     )
     options = parser.parse_args()
 
