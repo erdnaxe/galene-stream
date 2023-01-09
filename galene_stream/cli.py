@@ -20,8 +20,13 @@ def start(opt: argparse.Namespace):
     :type opt: argparse.Namespace
     """
     client = GaleneClient(
-        opt.input, opt.output, opt.bitrate, opt.group,
-        opt.username, opt.password, opt.insecure,
+        opt.input,
+        opt.output,
+        opt.bitrate,
+        opt.group,
+        opt.username,
+        opt.password,
+        opt.insecure,
     )
 
     # Connect and run main even loop
