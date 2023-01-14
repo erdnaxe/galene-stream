@@ -9,6 +9,8 @@ import json
 import logging
 import secrets
 import ssl
+import urllib.request
+import urllib.parse
 from typing import List
 
 import websockets
@@ -24,9 +26,8 @@ class GaleneClient:
     def __init__(
         self,
         input_uri: str,
-        server: str,
+        output: str,
         bitrate: int,
-        group: str,
         username: str,
         password: str = "",
         insecure: bool = False,
@@ -35,20 +36,17 @@ class GaleneClient:
 
         :param input_uri: URI for GStreamer uridecodebin
         :type input_uri: str
-        :param server: websocket url to connect to
-        :type server: str
+        :param output: group url
+        :type output: str
         :param bitrate: VP8 encoder bitrate in bit/s
         :type bitrate: int
-        :param group: group to join
-        :type group: str
         :param username: group user name
         :type username: str
         :param password: group user password if required
         :type password: str, optional
         :type insecure: bool, optional
         """
-        self.server = server
-        self.group = group
+        self.output = output
         self.username = username
         self.password = password
         self.insecure = insecure
@@ -118,15 +116,22 @@ class GaleneClient:
 
     async def connect(self) -> None:
         """Connect to server."""
-        # Create WebSocket
-        log.info("Connecting to WebSocket")
         if self.insecure:
             ssl_context = ssl.SSLContext()
             ssl_context.verify_mode = ssl.CERT_NONE
             ssl_context.check_hostname = False
         else:
             ssl_context = ssl.create_default_context()
-        self.conn = await websockets.connect(self.server, ssl=ssl_context)
+
+        # Get group status
+        log.info("Fetching group status")
+        status_url = urllib.parse.urljoin(self.output, ".status.json")
+        with urllib.request.urlopen(status_url, context=ssl_context) as resp:
+            status = json.loads(resp.read().decode("utf-8"))
+
+        # Create WebSocket
+        log.info("Connecting to WebSocket")
+        self.conn = await websockets.connect(status["endpoint"], ssl=ssl_context)
 
         # Handshake with server
         log.info("Handshaking")
@@ -143,7 +148,7 @@ class GaleneClient:
         msg = {
             "type": "join",
             "kind": "join",
-            "group": self.group,
+            "group": status["name"],
             "username": self.username,
             "password": self.password,
         }
