@@ -127,7 +127,7 @@ class GaleneClient:
         log.info("Fetching group status")
         status_url = urllib.parse.urljoin(self.output, ".status.json")
         with urllib.request.urlopen(status_url, context=ssl_context) as resp:
-            status = json.loads(resp.read().decode("utf-8"))
+            status = json.load(resp)
 
         # Create WebSocket
         log.info("Connecting to WebSocket")
