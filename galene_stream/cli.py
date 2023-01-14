@@ -104,6 +104,8 @@ def main():
 
     # Breaking change in Galene-stream 0.1.7: output is no longer a WebSocket URI
     if options.output.startswith("ws"):
-        raise ValueError("Output must be a group URL of the form https://galene.example.org/group/public/")
+        raise ValueError(
+            "Output must be a group URL of the form https://galene.example.org/group/public/"
+        )
 
     start(options)
