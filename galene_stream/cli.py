@@ -23,7 +23,6 @@ def start(opt: argparse.Namespace):
         opt.input,
         opt.output,
         opt.bitrate,
-        opt.group,
         opt.username,
         opt.password,
         opt.insecure,
@@ -66,19 +65,13 @@ def main():
         "-o",
         "--output",
         required=True,
-        help='Galène server to connect to, e.g. "wss://galene.example.com/ws"',
+        help="Group URL, of the form https://galene.example.org/group/public/",
     )
     parser.add_argument(
         "-b",
         "--bitrate",
         default=1048576,
         help="VP8 encoder bitrate in bit/s, you should adapt this to your network, default to 1048576",
-    )
-    parser.add_argument(
-        "-g",
-        "--group",
-        required=True,
-        help="Join this group",
     )
     parser.add_argument(
         "-u",
