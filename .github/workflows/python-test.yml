@@ -13,6 +13,7 @@ jobs:
     steps:
     - name: Install APT dependencies
       run: |
+        sudo apt-get update
         sudo apt-get install -y gir1.2-gst-plugins-bad-1.0 gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-nice gobject-introspection libgirepository1.0-dev
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
