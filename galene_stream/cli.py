@@ -102,4 +102,8 @@ def main():
         format="\033[90m%(asctime)s\033[1;0m [%(name)s] %(levelname)s %(message)s\033[1;0m",
     )
 
+    # Breaking change in Galene-stream 0.1.7: output is no longer a WebSocket URI
+    if options.output.startswith("ws"):
+        raise ValueError("Output must be a group URL of the form https://galene.example.org/group/public/")
+
     start(options)
