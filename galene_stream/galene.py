@@ -9,8 +9,8 @@ import json
 import logging
 import secrets
 import ssl
-import urllib.request
 import urllib.parse
+import urllib.request
 from typing import List
 
 import websockets
