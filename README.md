@@ -41,7 +41,7 @@ or install it using pip.
 Launch the gateway using:
 
 ```
-galene-stream --input "udp://127.0.0.1:8888" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "udp://127.0.0.1:8888" --output "https://galene.example.org/group/public/" --username bot
 ```
 
 Then you can stream to `udp://127.0.0.1:8888` with no stream key.
@@ -65,7 +65,7 @@ nginx -c nginx.conf -p $PWD
 You may launch the gateway after the NGINX server using:
 
 ```
-galene-stream --input "rtmp://127.0.0.1:1935/live/test" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "rtmp://127.0.0.1:1935/live/test" --output "https://galene.example.org/group/public/" --username bot
 ```
 
 Then you can stream to `rtmp://127.0.0.1:1935/live` with stream key `test`.
@@ -82,7 +82,7 @@ On Windows and MacOS, OBS comes with his own FFMpeg that will work.
 Launch the gateway using:
 
 ```
-galene-stream --input "srt://127.0.0.1:9710?mode=listener" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "srt://127.0.0.1:9710?mode=listener" --output "https://galene.example.org/group/public/" --username bot
 ```
 
 Then you can stream to `srt://127.0.0.1:9710` with no stream key.
@@ -94,7 +94,7 @@ More information on [OBS Wiki, Streaming With SRT Or RIST Protocols](https://obs
 For debugging purposes you can directly stream a file,
 
 ```
-galene-stream --input "file://source.webm" --output "wss://galene.example.com/ws" --group test --username bot
+galene-stream --input "file://source.webm" --output "https://galene.example.org/group/public/" --username bot
 ```
 
 ## Contributing
