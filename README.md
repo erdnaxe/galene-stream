@@ -1,5 +1,10 @@
 # Galène streaming gateway
 
+<!--
+Copyright (C) 2024 A. Iooss
+SPDX-License-Identifier: CC0-1.0
+-->
+
 Gateway to send streams such as RTMP or SRT to
 [Galène videoconference server](https://galene.org/).
 It is based on Gstreamer and implements the Galène protocol.
@@ -134,9 +139,9 @@ Then you can use GraphViz to generate an image from the dot file:
 
 ## License
 
+This project is compliant with version 3.2 of the REUSE Specification.
+
 This gateway is developed by former members of [Crans](https://www.crans.org/)
 and [Aurore](https://auro.re/) network organizations to build a self-hosted
 free and open-source streaming server based on [Galène](https://galene.org/).
-
 We believe in open source software.
-This project is licensed under [MIT](./LICENSE.txt).

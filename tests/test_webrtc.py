@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Alexandre Iooss
+# Copyright (C) 2021 A. Iooss
 # SPDX-License-Identifier: MIT
 
 """

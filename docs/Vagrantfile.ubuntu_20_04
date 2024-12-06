@@ -1,5 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+# Copyright (C) 2024 A. Iooss
+# SPDX-License-Identifier: CC0-1.0
 
 # Vagrant configuration for testing.
 # Run with: `export VAGRANT_VAGRANTFILE=Vagrantfile.ubuntu_20_04 && vagrant up`

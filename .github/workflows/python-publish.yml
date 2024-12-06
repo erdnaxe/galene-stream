@@ -1,3 +1,5 @@
+# Copyright (C) 2022 A. Iooss
+# SPDX-License-Identifier: MIT
 name: Publish python package
 
 on:

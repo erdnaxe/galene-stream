@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2022 Alexandre Iooss
+# Copyright (C) 2022 A. Iooss
 # SPDX-License-Identifier: MIT
 
 """

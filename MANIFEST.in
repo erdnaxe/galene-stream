@@ -1,5 +1,8 @@
+# Copyright (C) 2024 A. Iooss
+# SPDX-License-Identifier: CC0-1.0
+
 # Include documentation
-recursive-include docs *.png *.conf Vagrantfile*
+recursive-include docs *.png *.conf Vagrantfile* *.license
 
 # Include entrypoint
 include galene-stream.py
